@@ -4,8 +4,8 @@ android {
     compileSdkVersion 29
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "com.kuzko.aleksey.softgroupessay2kuzkoalexey"
-        minSdkVersion 21
+        applicationId "com.alexsoft"
+        minSdkVersion 29
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -30,6 +30,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.3'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
     implementation group: 'io.reactivex', name: 'rxandroid', version: '1.2.1'
     // https://mvnrepository.com/artifact/com.squareup.retrofit2/adapter-rxjava
     implementation group: 'com.squareup.retrofit2', name: 'adapter-rxjava', version: '2.2.0'

@@ -1,4 +1,4 @@
-package com.kuzko.aleksey.softgroupessay;
+package com.alexsoft;
 
 /**
  * Created by Aleks on 20.03.2017.
@@ -8,16 +8,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.kuzko.aleksey.softgroupessay.datamodel.Forecastday;
+
+import com.kuzko.aleksey.alexsoft.R;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
 class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
-    private List<Forecastday> forecastdays;
+    private List<String> aqiMeasurements;
 
-    RecyclerAdapter(List<Forecastday> dataset) {
-        forecastdays = dataset;
+    RecyclerAdapter(List<String> dataset) {
+        aqiMeasurements = dataset;
+    }
+
+    RecyclerAdapter(String dataset) {
+        List<String> list = Arrays.asList(dataset.split("<br>"));
+        Collections.reverse(list);
+        aqiMeasurements = list;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -36,11 +46,11 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.textViewRecyclerItem.setText(forecastdays.get(position).toString());
+        holder.textViewRecyclerItem.setText(aqiMeasurements.get(position).toString());
     }
 
     @Override
     public int getItemCount() {
-        return forecastdays.size();
+        return aqiMeasurements.size();
     }
 }

@@ -1,17 +1,17 @@
 
-package com.kuzko.aleksey.softgroupessay.datamodel;
+package com.alexsoft.datamodel;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Hour {
+public class Current {
 
-    private Integer timeEpoch;
-    private String time;
+    private Integer lastUpdatedEpoch;
+    private String lastUpdated;
     private Double tempC;
     private Double tempF;
     private Integer isDay;
-    private Condition__ condition;
+    private Condition condition;
     private Double windMph;
     private Double windKph;
     private Integer windDegree;
@@ -24,32 +24,24 @@ public class Hour {
     private Integer cloud;
     private Double feelslikeC;
     private Double feelslikeF;
-    private Double windchillC;
-    private Double windchillF;
-    private Double heatindexC;
-    private Double heatindexF;
-    private Double dewpointC;
-    private Double dewpointF;
-    private Integer willItRain;
-    private Integer willItSnow;
     private Double visKm;
     private Double visMiles;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Integer getTimeEpoch() {
-        return timeEpoch;
+    public Integer getLastUpdatedEpoch() {
+        return lastUpdatedEpoch;
     }
 
-    public void setTimeEpoch(Integer timeEpoch) {
-        this.timeEpoch = timeEpoch;
+    public void setLastUpdatedEpoch(Integer lastUpdatedEpoch) {
+        this.lastUpdatedEpoch = lastUpdatedEpoch;
     }
 
-    public String getTime() {
-        return time;
+    public String getLastUpdated() {
+        return lastUpdated;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setLastUpdated(String lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 
     public Double getTempC() {
@@ -76,11 +68,11 @@ public class Hour {
         this.isDay = isDay;
     }
 
-    public Condition__ getCondition() {
+    public Condition getCondition() {
         return condition;
     }
 
-    public void setCondition(Condition__ condition) {
+    public void setCondition(Condition condition) {
         this.condition = condition;
     }
 
@@ -178,70 +170,6 @@ public class Hour {
 
     public void setFeelslikeF(Double feelslikeF) {
         this.feelslikeF = feelslikeF;
-    }
-
-    public Double getWindchillC() {
-        return windchillC;
-    }
-
-    public void setWindchillC(Double windchillC) {
-        this.windchillC = windchillC;
-    }
-
-    public Double getWindchillF() {
-        return windchillF;
-    }
-
-    public void setWindchillF(Double windchillF) {
-        this.windchillF = windchillF;
-    }
-
-    public Double getHeatindexC() {
-        return heatindexC;
-    }
-
-    public void setHeatindexC(Double heatindexC) {
-        this.heatindexC = heatindexC;
-    }
-
-    public Double getHeatindexF() {
-        return heatindexF;
-    }
-
-    public void setHeatindexF(Double heatindexF) {
-        this.heatindexF = heatindexF;
-    }
-
-    public Double getDewpointC() {
-        return dewpointC;
-    }
-
-    public void setDewpointC(Double dewpointC) {
-        this.dewpointC = dewpointC;
-    }
-
-    public Double getDewpointF() {
-        return dewpointF;
-    }
-
-    public void setDewpointF(Double dewpointF) {
-        this.dewpointF = dewpointF;
-    }
-
-    public Integer getWillItRain() {
-        return willItRain;
-    }
-
-    public void setWillItRain(Integer willItRain) {
-        this.willItRain = willItRain;
-    }
-
-    public Integer getWillItSnow() {
-        return willItSnow;
-    }
-
-    public void setWillItSnow(Integer willItSnow) {
-        this.willItSnow = willItSnow;
     }
 
     public Double getVisKm() {

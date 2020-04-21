@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.kuzko.aleksey.softgroupessay">
+          package="com.kuzko.aleksey.alexsoft">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -10,8 +11,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
-        <activity android:name="com.kuzko.aleksey.softgroupessay.MainActivity">
+
+        <activity android:name="com.alexsoft.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

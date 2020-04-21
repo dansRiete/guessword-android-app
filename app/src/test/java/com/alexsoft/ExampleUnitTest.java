@@ -1,4 +1,4 @@
-package com.kuzko.aleksey.softgroupessay;
+package com.alexsoft;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.kuzko.aleksey.softgroupessay.datamodel;
+package com.alexsoft.datamodel;
 
 /**
  * Created by Aleks on 23.03.2017.
@@ -40,5 +40,10 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
 
     @Override
     public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) {
+    }
+
+    @Override
+    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
     }
 }

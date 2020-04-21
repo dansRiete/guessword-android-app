@@ -1,10 +1,10 @@
 
-package com.kuzko.aleksey.softgroupessay.datamodel;
+package com.alexsoft.datamodel;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Condition__ {
+public class Condition_ {
 
     private String text;
     private String icon;
