@@ -1,5 +1,5 @@
 
-package com.kuzko.aleksey.softgroupessay.datamodel;
+package com.alexsoft.datamodel;
 
 import java.util.List;
 public class Forecast
