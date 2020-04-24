@@ -9,25 +9,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.alexsoft.datamodel.Question;
+import com.alexsoft.datamodel.Word;
 import com.kuzko.aleksey.alexsoft.R;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
-    private List<String> aqiMeasurements;
+    private List<Question> questions = new ArrayList<>();
 
-    RecyclerAdapter(List<String> dataset) {
-        aqiMeasurements = dataset;
+    RecyclerAdapter(List<Question> dataset) {
+        questions = dataset == null ? new ArrayList<>() : dataset;
     }
 
-    RecyclerAdapter(String dataset) {
-        List<String> list = Arrays.asList(dataset.split("<br>"));
-        Collections.reverse(list);
-        aqiMeasurements = list;
+    public RecyclerAdapter() {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -38,6 +37,20 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         }
     }
 
+    public void addItem(Question question){
+        if(question != null) {
+            questions.add(question);
+        }
+    }
+
+    public Question getCurrent() {
+        return questions.get(questions.size() - 1);
+    }
+
+    public Question setCurrent(Question question) {
+        return questions.set(questions.size() - 1, question);
+    }
+
     @Override
     public RecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item, parent, false);
@@ -46,11 +59,14 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.textViewRecyclerItem.setText(aqiMeasurements.get(position).toString());
+        List<Word> foreignWords = questions.get(position).getWords().stream().filter(word -> word.getLanguage().equals("en")).collect(Collectors.toList());
+        holder.textViewRecyclerItem.setText(
+                position + ". " + foreignWords + " " + ((int) questions.get(position).getProbabilityFactor().doubleValue())
+        );
     }
 
     @Override
     public int getItemCount() {
-        return aqiMeasurements.size();
+        return questions.size();
     }
 }

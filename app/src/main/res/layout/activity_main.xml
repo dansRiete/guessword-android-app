@@ -15,37 +15,30 @@
 
 
     <LinearLayout
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/cityEnterView"
-        android:layout_above="@+id/button">
+        android:id="@+id/cityEnterView">
 
-        <EditText
-            android:hint="@string/enter_a_city"
-            android:id="@+id/editTextCity"
+
+        <Button
+            android:onClick="iDontKnowButtonAction"
+            android:id="@+id/leftButton"
             android:layout_width="0dp"
-            android:layout_weight="0.60"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:layout_weight="0.5"
+            android:text="Left Button"
             />
 
-        <EditText
-            android:hint="@string/enter_number_of_days"
-            android:id="@+id/editTextDaysNumber"
-            android:inputType="number"
+        <Button
+            android:onClick="iKnowButtonAction"
+            android:id="@+id/rigthButton"
             android:layout_width="0dp"
-            android:layout_weight="0.40"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Right Button"
+            />
 
     </LinearLayout>
-
-
-    <Button
-        android:onClick="buttonClicked"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button1Text" />
 
 </RelativeLayout>
