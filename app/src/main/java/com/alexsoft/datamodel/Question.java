@@ -1,6 +1,7 @@
 package com.alexsoft.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -26,6 +27,15 @@ public class Question {
     private Double probabilityFactor;
 
     private Double probabilityMultiplier;
+
+    @JsonIgnore
+    private Double previousProbabilityFactor;
+
+    @JsonIgnore
+    private Double previousProbabilityMultiplier;
+
+    @JsonIgnore
+    private Boolean answeredCorrectly;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)

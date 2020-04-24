@@ -27,7 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="Left Button"
+            android:text="@string/wrong_answer_button"
             />
 
         <Button
@@ -36,7 +36,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="Right Button"
+            android:text="@string/right_answer_button"
             />
 
     </LinearLayout>

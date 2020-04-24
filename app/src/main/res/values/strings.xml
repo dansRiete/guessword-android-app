@@ -3,4 +3,6 @@
     <string name="button1Text">Fetch data</string>
     <string name="enter_a_city">Enter a city</string>
     <string name="enter_number_of_days">Number of days</string>
+    <string name="wrong_answer_button">I don\'t know it</string>
+    <string name="right_answer_button">I know it</string>
 </resources>

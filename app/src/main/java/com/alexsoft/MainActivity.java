@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alexsoft.datamodel.Question;
 import com.alexsoft.datamodel.RecyclerItemClickListener;
 import com.kuzko.aleksey.alexsoft.R;
 
@@ -63,11 +64,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void iDontKnowButtonAction(View view) {
 
-        questionService.wrongAnswer(recyclerAdapter.getCurrent())
+        Question current = recyclerAdapter.getCurrent();
+        questionService.wrongAnswer(current)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         question -> {
+                            question.setAnsweredCorrectly(false);
+                            question.setPreviousProbabilityFactor(current.getProbabilityFactor());
+                            question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
                             recyclerAdapter.setCurrent(question);
                             questionService.getNext()
                                     .subscribeOn(Schedulers.io())
@@ -92,11 +97,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void iKnowButtonAction(View view) {
 
-        questionService.rightAnswer(recyclerAdapter.getCurrent())
+        Question current = recyclerAdapter.getCurrent();
+        questionService.rightAnswer(current)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         question -> {
+                            question.setAnsweredCorrectly(true);
+                            question.setPreviousProbabilityFactor(current.getProbabilityFactor());
+                            question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
                             recyclerAdapter.setCurrent(question);
                             questionService.getNext()
                                     .subscribeOn(Schedulers.io())

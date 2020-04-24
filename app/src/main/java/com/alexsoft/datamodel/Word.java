@@ -18,6 +18,6 @@ class Word {
 
     @Override
     public String toString() {
-        return word + ( transcription == null ? "" : " [" + transcription + "]" );
+        return word + ( transcription != null && language.equals("ru") ? " [" + transcription + "]" : "" );
     }
 }

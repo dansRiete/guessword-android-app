@@ -14,41 +14,42 @@ import com.alexsoft.datamodel.Word;
 import com.kuzko.aleksey.alexsoft.R;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
-    private List<Question> questions = new ArrayList<>();
+    private List<Question> questions = new LinkedList<>();
 
     RecyclerAdapter(List<Question> dataset) {
-        questions = dataset == null ? new ArrayList<>() : dataset;
+        questions = dataset == null ? new LinkedList<>() : dataset;
     }
 
-    public RecyclerAdapter() {
+    RecyclerAdapter() {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewRecyclerItem;
         ViewHolder(View view) {
             super(view);
-            textViewRecyclerItem = (TextView) view.findViewById(R.id.textViewRecyclerItem);
+            textViewRecyclerItem = view.findViewById(R.id.textViewRecyclerItem);
         }
     }
 
-    public void addItem(Question question){
+    void addItem(Question question){
         if(question != null) {
-            questions.add(question);
+            questions.add(0, question);
         }
     }
 
-    public Question getCurrent() {
-        return questions.get(questions.size() - 1);
+    Question getCurrent() {
+        return questions.size() > 0 ? questions.get(0) : null;
     }
 
-    public Question setCurrent(Question question) {
-        return questions.set(questions.size() - 1, question);
+    Question setCurrent(Question question) {
+        return questions.set(0, question);
     }
 
     @Override
@@ -59,10 +60,23 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        List<Word> foreignWords = questions.get(position).getWords().stream().filter(word -> word.getLanguage().equals("en")).collect(Collectors.toList());
-        holder.textViewRecyclerItem.setText(
-                position + ". " + foreignWords + " " + ((int) questions.get(position).getProbabilityFactor().doubleValue())
-        );
+        Question question = questions.get(position);
+        List<Word> foreignWords = question.getWords().stream().filter(word -> word.getLanguage().equals("en")).collect(Collectors.toList());
+        List<Word> nativeWords = question.getWords().stream().filter(word -> word.getLanguage().equals("ru")).collect(Collectors.toList());
+        String words = question.getAnsweredCorrectly() == null ? foreignWords.toString() : foreignWords.toString() + " - " + nativeWords.toString();
+        String formattedWords = String.format("%d. %s", questions.size() - position, words);
+        String formattedProbabilityValues;
+        if(question.getAnsweredCorrectly() == null) {
+            formattedProbabilityValues = String.format("%.1f/%.2f", question.getProbabilityFactor(), question.getProbabilityMultiplier());
+        } else {
+            formattedProbabilityValues = String.format("%.1f->%.1f/%.2f->%.2f",
+                    question.getPreviousProbabilityFactor(),
+                    question.getProbabilityFactor(),
+                    question.getPreviousProbabilityMultiplier(),
+                    question.getProbabilityMultiplier()
+            );
+        }
+        holder.textViewRecyclerItem.setText(formattedWords + " " + formattedProbabilityValues);
     }
 
     @Override
