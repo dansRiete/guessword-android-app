@@ -11,31 +11,39 @@
         android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/cityEnterView"/>
+        android:layout_above="@+id/buttonGroup2"/>
 
 
     <LinearLayout
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/cityEnterView">
+        android:id="@+id/buttonGroup2">
+
+        <Button
+            android:onClick="previousButton"
+            android:id="@+id/previousButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.20"
+            android:text="@string/previous_button"
+            />
 
         <Button
             android:onClick="nextButton"
             android:id="@+id/nextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.33"
+            android:layout_weight="0.20"
             android:text="@string/next_button"
             />
-
 
         <Button
             android:onClick="iDontKnowButtonAction"
             android:id="@+id/leftButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.33"
+            android:layout_weight="0.25"
             android:text="@string/wrong_answer_button"
             />
 
@@ -44,7 +52,7 @@
             android:id="@+id/rigthButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.33"
+            android:layout_weight="0.25"
             android:text="@string/right_answer_button"
             />
 

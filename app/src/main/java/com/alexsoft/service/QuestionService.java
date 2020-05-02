@@ -27,4 +27,10 @@ public interface QuestionService {
     @POST("question/wrong")
     Observable<Question> wrongAnswer(@Body Question question);
 
+    @POST("question/rollbackRight")
+    Observable<Question> rollbackRight();
+
+    @POST("question/rollbackWrong")
+    Observable<Question> rollbackWrong();
+
 }

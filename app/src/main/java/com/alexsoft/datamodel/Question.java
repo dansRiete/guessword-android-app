@@ -51,6 +51,6 @@ public class Question {
 
     @Override
     public String toString() {
-        return id + ". prob="+probabilityFactor + " " + words;
+        return String.format("%d. prob=%s %s, answered: %s", id, probabilityFactor, words, String.valueOf(answeredCorrectly));
     }
 }

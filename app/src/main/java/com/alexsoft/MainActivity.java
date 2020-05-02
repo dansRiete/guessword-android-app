@@ -9,7 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alexsoft.datamodel.Question;
-import com.alexsoft.datamodel.RecyclerItemClickListener;
+import com.alexsoft.listener.RecyclerItemClickListener;
+import com.alexsoft.service.QuestionService;
 import com.kuzko.aleksey.alexsoft.R;
 
 import retrofit2.Retrofit;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private QuestionService questionService = retrofit.create(QuestionService.class);
     private RecyclerAdapter recyclerAdapter = new RecyclerAdapter();
     private RecyclerView mRecyclerView;
+    private boolean previousSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,50 +55,112 @@ public class MainActivity extends AppCompatActivity {
     public void iDontKnowButtonAction(View view) {
 
         Question current = recyclerAdapter.getCurrent();
-        questionService.wrongAnswer(current)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        question -> {
-                            question.setAnsweredCorrectly(false);
-                            question.setPreviousProbabilityFactor(current.getProbabilityFactor());
-                            question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
-                            recyclerAdapter.setCurrent(question);
-                            loadNext();
-                        },
-                        error -> {
-                            Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                            error.printStackTrace();
-                        }
-                );
+        if (previousSelected && current.getAnsweredCorrectly() != null) {
+            questionService.rollbackWrong()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question -> {
+                                question.setAnsweredCorrectly(false);
+                                question.setPreviousProbabilityFactor(current.getPreviousProbabilityFactor());
+                                question.setPreviousProbabilityMultiplier(current.getPreviousProbabilityMultiplier());
+                                recyclerAdapter.setCurrent(question);
+                                previousSelected = false;
+                                recyclerAdapter.setPreviousSelected(false);
+                                recyclerAdapter.notifyDataSetChanged();
+                            },
+                            error -> {
+                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
+                            }
+                    );
+        } else {
+            questionService.wrongAnswer(current)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question -> {
+                                question.setAnsweredCorrectly(false);
+                                question.setPreviousProbabilityFactor(current.getProbabilityFactor());
+                                question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
+                                recyclerAdapter.setCurrent(question);
+                                if(previousSelected) {
+                                    previousSelected = false;
+                                    recyclerAdapter.setPreviousSelected(false);
+                                    recyclerAdapter.notifyDataSetChanged();
+                                } else {
+                                    loadNext();
+                                }
+                            },
+                            error -> {
+                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
+                            }
+                    );
+        }
     }
 
     public void iKnowButtonAction(View view) {
 
         Question current = recyclerAdapter.getCurrent();
-        questionService.rightAnswer(current)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        question -> {
-                            question.setAnsweredCorrectly(true);
-                            question.setPreviousProbabilityFactor(current.getProbabilityFactor());
-                            question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
-                            recyclerAdapter.setCurrent(question);
-                            loadNext();
-                        },
-                        error -> {
-                            Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                            error.printStackTrace();
-                        }
-                );
+        if (previousSelected && current.getAnsweredCorrectly() != null) {
+            questionService.rollbackRight()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question -> {
+                                question.setAnsweredCorrectly(true);
+                                question.setPreviousProbabilityFactor(current.getPreviousProbabilityFactor());
+                                question.setPreviousProbabilityMultiplier(current.getPreviousProbabilityMultiplier());
+                                recyclerAdapter.setCurrent(question);
+                                previousSelected = false;
+                                recyclerAdapter.setPreviousSelected(false);
+                                recyclerAdapter.notifyDataSetChanged();
+                            },
+                            error -> {
+                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
+                            }
+                    );
+        } else {
+            questionService.rightAnswer(current)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question -> {
+                                question.setAnsweredCorrectly(true);
+                                question.setPreviousProbabilityFactor(current.getProbabilityFactor());
+                                question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
+                                recyclerAdapter.setCurrent(question);
+                                if(previousSelected) {
+                                    previousSelected = false;
+                                    recyclerAdapter.setPreviousSelected(false);
+                                    recyclerAdapter.notifyDataSetChanged();
+                                } else {
+                                    loadNext();
+                                }
+                            },
+                            error -> {
+                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
+                            }
+                    );
+        }
     }
 
     public void nextButton(View view) {
-        loadNext();
+        if (previousSelected) {
+            previousSelected = false;
+            recyclerAdapter.setPreviousSelected(false);
+            recyclerAdapter.notifyDataSetChanged();
+        } else {
+            loadNext();
+        }
     }
 
     private void loadNext() {
+        previousSelected = false;
+        recyclerAdapter.setPreviousSelected(false);
         questionService.getNext()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -110,5 +174,11 @@ public class MainActivity extends AppCompatActivity {
                             error.printStackTrace();
                         }
                 );
+    }
+
+    public void previousButton(View view) {
+        this.previousSelected = true;
+        recyclerAdapter.setPreviousSelected(true);
+        recyclerAdapter.notifyDataSetChanged();
     }
 }
