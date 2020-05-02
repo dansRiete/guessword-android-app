@@ -9,7 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alexsoft.datamodel.Question;
-import com.alexsoft.datamodel.RecyclerItemClickListener;
+import com.alexsoft.listener.RecyclerItemClickListener;
+import com.alexsoft.service.QuestionService;
 import com.kuzko.aleksey.alexsoft.R;
 
 import retrofit2.Retrofit;
@@ -21,7 +22,7 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String GUESSWORD_SERVER = "http://192.168.1.4:8080/api/";
+    private final static String GUESSWORD_SERVER = "http://192.168.1.5:8080/api/";
     Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(JacksonConverterFactory.create())
