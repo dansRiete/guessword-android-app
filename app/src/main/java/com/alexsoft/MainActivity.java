@@ -9,8 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alexsoft.datamodel.Question;
-import com.alexsoft.listener.RecyclerItemClickListener;
-import com.alexsoft.service.QuestionService;
+import com.alexsoft.datamodel.RecyclerItemClickListener;
 import com.kuzko.aleksey.alexsoft.R;
 
 import retrofit2.Retrofit;
@@ -47,19 +46,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(recyclerAdapter);
 
-        questionService.getNext()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        question -> {
-                            recyclerAdapter.addItem(question);
-                            recyclerAdapter.notifyDataSetChanged();
-                        },
-                        error -> {
-                            Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                            error.printStackTrace();
-                        }
-                );
+        loadNext();
 
     }
 
@@ -75,20 +62,8 @@ public class MainActivity extends AppCompatActivity {
                             question.setPreviousProbabilityFactor(current.getProbabilityFactor());
                             question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
                             recyclerAdapter.setCurrent(question);
-                            questionService.getNext()
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(
-                                            question1 -> {
-                                                recyclerAdapter.addItem(question1);
-                                                recyclerAdapter.notifyDataSetChanged();
-                                            },
-                                            error -> {
-                                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                                                error.printStackTrace();
-                                            }
-                                    );
-                            },
+                            loadNext();
+                        },
                         error -> {
                             Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                             error.printStackTrace();
@@ -108,19 +83,27 @@ public class MainActivity extends AppCompatActivity {
                             question.setPreviousProbabilityFactor(current.getProbabilityFactor());
                             question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
                             recyclerAdapter.setCurrent(question);
-                            questionService.getNext()
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(
-                                            question1 -> {
-                                                recyclerAdapter.addItem(question1);
-                                                recyclerAdapter.notifyDataSetChanged();
-                                            },
-                                            error -> {
-                                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                                                error.printStackTrace();
-                                            }
-                                    );
+                            loadNext();
+                        },
+                        error -> {
+                            Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                            error.printStackTrace();
+                        }
+                );
+    }
+
+    public void nextButton(View view) {
+        loadNext();
+    }
+
+    private void loadNext() {
+        questionService.getNext()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        question -> {
+                            recyclerAdapter.addItem(question);
+                            recyclerAdapter.notifyDataSetChanged();
                         },
                         error -> {
                             Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();

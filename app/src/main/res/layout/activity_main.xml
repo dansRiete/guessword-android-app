@@ -20,13 +20,22 @@
         android:layout_height="wrap_content"
         android:id="@+id/cityEnterView">
 
+        <Button
+            android:onClick="nextButton"
+            android:id="@+id/nextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:text="@string/next_button"
+            />
+
 
         <Button
             android:onClick="iDontKnowButtonAction"
             android:id="@+id/leftButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5"
+            android:layout_weight="0.33"
             android:text="@string/wrong_answer_button"
             />
 
@@ -35,7 +44,7 @@
             android:id="@+id/rigthButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5"
+            android:layout_weight="0.33"
             android:text="@string/right_answer_button"
             />
 
