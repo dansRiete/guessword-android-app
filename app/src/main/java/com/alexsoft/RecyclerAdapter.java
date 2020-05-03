@@ -78,7 +78,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
                 .collect(Collectors.toList()));
         String nativeWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals("ru"))
                 .collect(Collectors.toList()));
-        String words = question.getAnsweredCorrectly() == null ? foreignWords : foreignWords + " - " + nativeWords;
+        String words = question.getAnsweredCorrectly() == null ? nativeWords : nativeWords + " - " + foreignWords;
         String formattedWords = String.format("%d. %s", questions.size() - position, words);
         String formattedProbabilityValues;
         if (question.getAnsweredCorrectly() == null) {
