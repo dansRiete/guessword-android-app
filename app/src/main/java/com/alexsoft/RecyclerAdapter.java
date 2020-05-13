@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static com.alexsoft.MyApplication.getAppContext;
+import static com.alexsoft.utils.QuestionUtils.isAnswered;
 
 @Getter
 @Setter
@@ -100,21 +101,21 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
                 .collect(Collectors.toList()));
 
         if (question.getAnsweredCorrectly() != null) {
-            boolean a;
+            boolean makeBold;
             if (question.getAnsweredCorrectly()) {
-                a = question.getPreviousStudyPoints() > 3 && question.getStudyPoints() <= 3;
+                makeBold = question.getPreviousStudyPoints() > 3 && question.getStudyPoints() <= 3;
                 foreignWords = String.format("<font color='%s'>%s</font>",
                         getAppContext().getString(R.string.rightAnsweredQuestionColor),
                         foreignWords
                 );
             } else {
-                a = question.getPreviousStudyPoints() <= 3 && question.getStudyPoints() > 3;
+                makeBold = question.getPreviousStudyPoints() <= 3 && question.getStudyPoints() > 3;
                 foreignWords = String.format("<font color='%s'>%s</font>",
                         getAppContext().getString(R.string.wrongAnsweredQuestionColor),
                         foreignWords
                 );
             }
-            if(a) {
+            if(makeBold) {
                 foreignWords = "<b>" + foreignWords + "</b>";
             }
         } else {
@@ -124,9 +125,10 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
             );
         }
 
-        String nativeWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals("ru"))
-                .collect(Collectors.toList()));
-        if(question.getStudyPoints() <= 3) {
+        String nativeWords = toString(question.getWords().stream().filter(word -> word.getLanguage()
+                .equals("ru")).collect(Collectors.toList()));
+
+        if (question.getStudyPoints() <= 3 && !isAnswered(question)) {
             nativeWords = String.format("<font color='%s'>%s</font>",
                     getAppContext().getString(R.string.rightAnsweredQuestionColor),
                     nativeWords
