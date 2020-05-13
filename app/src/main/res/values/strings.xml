@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Guessword</string>
+    <string name="button1Text">Fetch data</string>
+    <string name="next_button">Next</string>
+    <string name="previous_button">Prev</string>
+    <string name="enter_a_city">Enter a city</string>
+    <string name="enter_number_of_days">Number of days</string>
+    <string name="wrong_answer_button">Don\'t know</string>
+    <string name="right_answer_button">Know</string>
+    <string name="rightAnsweredQuestionColor">#388e3c</string>
+    <string name="wrongAnsweredQuestionColor">#d84315</string>
+    <string name="unAnsweredQuestionColor">gray</string>
+</resources>
