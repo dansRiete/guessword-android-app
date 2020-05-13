@@ -6,7 +6,6 @@ package com.alexsoft;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
@@ -103,13 +102,13 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         if (question.getAnsweredCorrectly() != null) {
             boolean a;
             if (question.getAnsweredCorrectly()) {
-                a = question.getPreviousProbabilityFactor() > 3 && question.getProbabilityFactor() <= 3;
+                a = question.getPreviousStudyPoints() > 3 && question.getStudyPoints() <= 3;
                 foreignWords = String.format("<font color='%s'>%s</font>",
                         getAppContext().getString(R.string.rightAnsweredQuestionColor),
                         foreignWords
                 );
             } else {
-                a = question.getPreviousProbabilityFactor() <= 3 && question.getProbabilityFactor() > 3;
+                a = question.getPreviousStudyPoints() <= 3 && question.getStudyPoints() > 3;
                 foreignWords = String.format("<font color='%s'>%s</font>",
                         getAppContext().getString(R.string.wrongAnsweredQuestionColor),
                         foreignWords
@@ -127,7 +126,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
         String nativeWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals("ru"))
                 .collect(Collectors.toList()));
-        if(question.getProbabilityFactor() <= 3) {
+        if(question.getStudyPoints() <= 3) {
             nativeWords = String.format("<font color='%s'>%s</font>",
                     getAppContext().getString(R.string.rightAnsweredQuestionColor),
                     nativeWords
@@ -138,14 +137,14 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         String formattedWords = String.format("%d. %s", questions.size() - position, words);
         String formattedProbabilityValues;
         if (question.getAnsweredCorrectly() == null) {
-            formattedProbabilityValues = String.format("[ %.1f/%.2f ]", question.getProbabilityFactor(),
-                    question.getProbabilityMultiplier());
+            formattedProbabilityValues = String.format("[ %.1f/%.2f ]", question.getStudyPoints(),
+                    question.getStudyPointsMultiplier());
         } else {
             formattedProbabilityValues = String.format("[ %.1f>%.1f / %.2f>%.2f ]",
-                    question.getPreviousProbabilityFactor(),
-                    question.getProbabilityFactor(),
-                    question.getPreviousProbabilityMultiplier(),
-                    question.getProbabilityMultiplier()
+                    question.getPreviousStudyPoints(),
+                    question.getStudyPoints(),
+                    question.getPreviousStudyPointsMultiplier(),
+                    question.getStudyPointsMultiplier()
             );
         }
         holder.textViewRecyclerItem.setText(Html.fromHtml(formattedWords + " " + formattedProbabilityValues), TextView.BufferType.SPANNABLE);

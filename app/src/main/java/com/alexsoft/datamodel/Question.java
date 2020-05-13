@@ -1,10 +1,8 @@
 package com.alexsoft.datamodel;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
@@ -24,15 +22,15 @@ public class Question {
 
     private Integer id;
 
-    private Double probabilityFactor;
+    private Double studyPoints;
 
-    private Double probabilityMultiplier;
-
-    @JsonIgnore
-    private Double previousProbabilityFactor;
+    private Double studyPointsMultiplier;
 
     @JsonIgnore
-    private Double previousProbabilityMultiplier;
+    private Double previousStudyPoints;
+
+    @JsonIgnore
+    private Double previousStudyPointsMultiplier;
 
     @JsonIgnore
     private Boolean answeredCorrectly;
@@ -51,6 +49,6 @@ public class Question {
 
     @Override
     public String toString() {
-        return String.format("%d. prob=%s %s, answered: %s", id, probabilityFactor, words, String.valueOf(answeredCorrectly));
+        return String.format("%d. prob=%s %s, answered: %s", id, studyPoints, words, String.valueOf(answeredCorrectly));
     }
 }

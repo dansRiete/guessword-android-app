@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
                     .subscribe(
                             question -> {
                                 question.setAnsweredCorrectly(false);
-                                question.setPreviousProbabilityFactor(current.getPreviousProbabilityFactor());
-                                question.setPreviousProbabilityMultiplier(current.getPreviousProbabilityMultiplier());
+                                question.setPreviousStudyPoints(current.getPreviousStudyPoints());
+                                question.setPreviousStudyPointsMultiplier(current.getPreviousStudyPointsMultiplier());
                                 recyclerAdapter.setCurrent(question);
                                 previousSelected = false;
                                 recyclerAdapter.setPreviousSelected(false);
@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
                     .subscribe(
                             question -> {
                                 question.setAnsweredCorrectly(false);
-                                question.setPreviousProbabilityFactor(current.getProbabilityFactor());
-                                question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
+                                question.setPreviousStudyPoints(current.getStudyPoints());
+                                question.setPreviousStudyPointsMultiplier(current.getStudyPointsMultiplier());
                                 recyclerAdapter.setCurrent(question);
                                 if(previousSelected) {
                                     previousSelected = false;
@@ -121,8 +121,8 @@ public class MainActivity extends AppCompatActivity {
                     .subscribe(
                             question -> {
                                 question.setAnsweredCorrectly(true);
-                                question.setPreviousProbabilityFactor(current.getPreviousProbabilityFactor());
-                                question.setPreviousProbabilityMultiplier(current.getPreviousProbabilityMultiplier());
+                                question.setPreviousStudyPoints(current.getPreviousStudyPoints());
+                                question.setPreviousStudyPointsMultiplier(current.getPreviousStudyPointsMultiplier());
                                 recyclerAdapter.setCurrent(question);
                                 previousSelected = false;
                                 recyclerAdapter.setPreviousSelected(false);
@@ -142,8 +142,8 @@ public class MainActivity extends AppCompatActivity {
                     .subscribe(
                             question -> {
                                 question.setAnsweredCorrectly(true);
-                                question.setPreviousProbabilityFactor(current.getProbabilityFactor());
-                                question.setPreviousProbabilityMultiplier(current.getProbabilityMultiplier());
+                                question.setPreviousStudyPoints(current.getStudyPoints());
+                                question.setPreviousStudyPointsMultiplier(current.getStudyPointsMultiplier());
                                 recyclerAdapter.setCurrent(question);
                                 if(previousSelected) {
                                     previousSelected = false;
