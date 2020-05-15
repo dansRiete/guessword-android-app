@@ -18,10 +18,10 @@ class Word {
 
     @Override
     public String toString() {
-        return word + ( transcription != null && language.equals("ru") ? " [" + transcription + "]" : "" );
+        return String.format("%s%s", word, transcription != null && language.equals("ru") ? String.format(" [%s]", transcription) : "");
     }
 
     public String toQuestionString() {
-        return word + ( transcription != null && language.equals("ru") ? " [" + transcription + "]" : "" );
+        return String.format("%s%s", word, transcription != null && language.equals("en") ? String.format(" [%s]", transcription) : "");
     }
 }
