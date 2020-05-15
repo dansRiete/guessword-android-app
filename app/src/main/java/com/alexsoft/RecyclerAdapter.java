@@ -26,6 +26,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static com.alexsoft.MyApplication.getAppContext;
+import static com.alexsoft.utils.QuestionUtils.alreadyStudiedAnsweredWrong;
+import static com.alexsoft.utils.QuestionUtils.hasBeenStudied;
 import static com.alexsoft.utils.QuestionUtils.isAnswered;
 
 @Getter
@@ -35,6 +37,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     private List<Question> questions = new LinkedList<>();
     private boolean previousSelected;
     private int rightAnswerPercentage = 0;
+    private int studiedQuestions = 0;
 
     RecyclerAdapter() {
     }
@@ -52,7 +55,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         if (question != null) {
             questions.add(0, question);
         }
-        recalculatePercentage();
+        updateStats();
     }
 
     Question getCurrent() {
@@ -70,13 +73,14 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         } else {
             question1 =  questions.set(0, question);
         }
-        recalculatePercentage();
+        updateStats();
         return question1;
     }
 
-    private void recalculatePercentage() {
+    private void updateStats() {
         int rights = 0;
         int total = 0;
+        studiedQuestions = 0;
         for(Question question : questions) {
             if(question.getAnsweredCorrectly() != null) {
                 if(question.getAnsweredCorrectly()) {
@@ -84,8 +88,13 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
                 }
                 total++;
             }
+            if (hasBeenStudied(question)) {
+                studiedQuestions++;
+            } else if (alreadyStudiedAnsweredWrong(question)) {
+                studiedQuestions--;
+            }
         }
-        rightAnswerPercentage = total == 0 ? 0 : rights* 100 / total;
+        rightAnswerPercentage = total == 0 ? 0 : rights * 100 / total;
     }
 
     @Override

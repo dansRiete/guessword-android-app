@@ -1,6 +1,7 @@
 package com.alexsoft;
 
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                                 previousSelected = false;
                                 recyclerAdapter.setPreviousSelected(false);
                                 recyclerAdapter.notifyDataSetChanged();
-                                serviceText.setText(String.format("Right answers %d%%", recyclerAdapter.getRightAnswerPercentage()));
+                                setStatisticFooter();
 
                             },
                             error -> {
@@ -93,11 +94,11 @@ public class MainActivity extends AppCompatActivity {
                                 question.setPreviousStudyPoints(current.getStudyPoints());
                                 question.setPreviousStudyPointsMultiplier(current.getStudyPointsMultiplier());
                                 recyclerAdapter.setCurrent(question);
-                                if(previousSelected) {
+                                if (previousSelected) {
                                     previousSelected = false;
                                     recyclerAdapter.setPreviousSelected(false);
                                     recyclerAdapter.notifyDataSetChanged();
-                                    serviceText.setText(String.format("Right answers %d%%", recyclerAdapter.getRightAnswerPercentage()));
+                                    setStatisticFooter();
 
                                 } else {
                                     loadNext();
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                                 previousSelected = false;
                                 recyclerAdapter.setPreviousSelected(false);
                                 recyclerAdapter.notifyDataSetChanged();
-                                serviceText.setText(String.format("Right answers %d%%", recyclerAdapter.getRightAnswerPercentage()));
+                                setStatisticFooter();
 
                             },
                             error -> {
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                                     previousSelected = false;
                                     recyclerAdapter.setPreviousSelected(false);
                                     recyclerAdapter.notifyDataSetChanged();
-                                    serviceText.setText(String.format("Right answers %d%%", recyclerAdapter.getRightAnswerPercentage()));
+                                    setStatisticFooter();
                                 } else {
                                     loadNext();
                                 }
@@ -172,6 +173,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setStatisticFooter() {
+        String stat = String.format(
+                "<font color='%s'>Studied today: %d</font>," +
+                        " <font color='%s'>Right answers %d%%</font>",
+                "#4CAF50",
+                recyclerAdapter.getStudiedQuestions(),
+                "#3F51B5",
+                recyclerAdapter.getRightAnswerPercentage());
+        serviceText.setText(Html.fromHtml(stat), TextView.BufferType.SPANNABLE);
+    }
+
     private void loadNext() {
         previousSelected = false;
         recyclerAdapter.setPreviousSelected(false);
@@ -182,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                         question -> {
                             recyclerAdapter.addItem(question);
                             recyclerAdapter.notifyDataSetChanged();
-                            serviceText.setText(String.format("Right answers %d%%", recyclerAdapter.getRightAnswerPercentage()));
+                            setStatisticFooter();
                         },
                         error -> {
                             Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
