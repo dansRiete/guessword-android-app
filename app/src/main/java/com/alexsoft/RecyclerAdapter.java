@@ -42,6 +42,10 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     RecyclerAdapter() {
     }
 
+    public Question getQuestion(int id) {
+        return questions.get(id);
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewRecyclerItem;
 
@@ -105,6 +109,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.itemView.setLongClickable(true);
         Question question = questions.get(position);
         String foreignWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals("en"))
                 .collect(Collectors.toList()));

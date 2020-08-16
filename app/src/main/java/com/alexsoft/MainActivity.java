@@ -2,17 +2,24 @@ package com.alexsoft;
 
 import android.os.Bundle;
 import android.text.Html;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alexsoft.datamodel.Question;
 import com.alexsoft.listener.RecyclerItemClickListener;
 import com.alexsoft.service.QuestionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kuzko.aleksey.alexsoft.R;
 
 import retrofit2.Retrofit;
@@ -25,8 +32,8 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOCALHOST = "10.0.2.2";
-    private static final String NP300 = "192.168.1.5";
-    private final static String GUESSWORD_SERVER = "http://" + LOCALHOST + ":8080/api/";
+    private static final String NP300 = "185.212.128.246";
+    private final static String GUESSWORD_SERVER = "http://" + NP300 + ":8080/api/";
 
     Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -38,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private boolean previousSelected;
     TextView serviceText;
+    QuestionEditFragment frag1;
+    FragmentTransaction fTrans;
 
 
     @Override
@@ -55,9 +64,39 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);    // If confident of rec.view layout size isn't changed by content
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(recyclerAdapter);
+        registerForContextMenu(mRecyclerView);
 
         loadNext();
 
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        // Inflate Menu from xml resource
+        MenuInflater menuInflater = this.getMenuInflater();
+        menuInflater.inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        ContextMenuRecyclerView.RecyclerContextMenuInfo info = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
+        Question question = recyclerAdapter.getQuestion(info.position);
+        fTrans = getSupportFragmentManager().beginTransaction();
+        switch (item.getTitle().toString()){
+            case "Edit":
+                frag1 = QuestionEditFragment.newInstance(question);
+                fTrans.add(R.id.frgmCont, frag1);
+                fTrans.addToBackStack(null);
+                fTrans.commit();
+                break;
+            case "Delete":
+                break;
+            default:
+                //nop
+        }
+        return false;
     }
 
     public void iDontKnowButtonAction(View view) {
