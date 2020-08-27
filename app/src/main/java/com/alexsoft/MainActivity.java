@@ -17,9 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alexsoft.datamodel.Question;
 import com.alexsoft.listener.RecyclerItemClickListener;
 import com.alexsoft.service.QuestionService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kuzko.aleksey.alexsoft.R;
 
 import retrofit2.Retrofit;
@@ -246,5 +243,13 @@ public class MainActivity extends AppCompatActivity {
         this.previousSelected = true;
         recyclerAdapter.setPreviousSelected(true);
         recyclerAdapter.notifyDataSetChanged();
+    }
+
+    public QuestionService getQuestionService() {
+        return questionService;
+    }
+
+    public RecyclerAdapter getRecyclerAdapter() {
+        return recyclerAdapter;
     }
 }

@@ -7,6 +7,8 @@ import java.util.List;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
 import rx.Observable;
 
 /**
@@ -20,6 +22,9 @@ public interface QuestionService {
 
     @GET("question/getNext")
     Observable<Question> getNext();
+
+    @PUT("question/{id}")
+    Observable<Question> update(@Body Question question, @Path("id") Integer id);
 
     @POST("question/right")
     Observable<Question> rightAnswer(@Body Question question);
