@@ -5,6 +5,7 @@ import com.alexsoft.datamodel.Question;
 import java.util.List;
 
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -20,22 +21,25 @@ public interface QuestionService {
     @GET("question")
     Observable<List<Question>> getAllQuestions();
 
-    @GET("question/getNext")
+    @GET("answer/getNext")
     Observable<Question> getNext();
 
     @PUT("question/{id}")
     Observable<Question> update(@Body Question question, @Path("id") Integer id);
 
-    @POST("question/right")
+    @DELETE("question/{id}")
+    Observable<Void> delete(@Path("id") Integer id);
+
+    @POST("answer/right")
     Observable<Question> rightAnswer(@Body Question question);
 
-    @POST("question/wrong")
+    @POST("answer/wrong")
     Observable<Question> wrongAnswer(@Body Question question);
 
-    @POST("question/previousRight")
+    @POST("answer/previousRight")
     Observable<Question> previousRight();
 
-    @POST("question/previousWrong")
+    @POST("answer/previousWrong")
     Observable<Question> previousWrong();
 
 }

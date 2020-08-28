@@ -88,21 +88,21 @@ public class QuestionEditFragment extends Fragment {
             }
         }
         MainActivity activity = (MainActivity) getActivity();
+        if (activity == null) {
+            return;
+        }
         Context context = getContext();
         activity.getQuestionService().update(question, question.getId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        question -> Toast.makeText(context, "Question was successfully saved",
-                                Toast.LENGTH_SHORT).show(),
-                        error -> {
-                            Toast.makeText(context, "Failed saving a question, reason: " +
-                                    error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                            error.printStackTrace();
-                        }
-                );;
-        activity.getRecyclerAdapter().notifyDataSetChanged();
-        activity.onBackPressed();
-        System.out.println();
+                        question -> {
+                            Toast.makeText(context, "Question was saved", Toast.LENGTH_SHORT).show();
+                            activity.getRecyclerAdapter().notifyDataSetChanged();
+                            activity.onBackPressed();
+                        },
+                        error -> Toast.makeText(context, "Failed saving a question, reason: " +
+                                error.getLocalizedMessage(), Toast.LENGTH_LONG).show()
+                );
     }
 }

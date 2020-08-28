@@ -29,8 +29,9 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOCALHOST = "10.0.2.2";
-    private static final String NP300 = "185.212.128.246";
-    private final static String GUESSWORD_SERVER = "http://" + NP300 + ":8080/api/";
+    private static final String PROHOSTER = "185.212.128.246";
+    private static final String PORT = "8080";
+    private final static String GUESSWORD_SERVER = "http://" + PROHOSTER + ":" + PORT + "/api/";
 
     Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -89,6 +90,25 @@ public class MainActivity extends AppCompatActivity {
                 fTrans.commit();
                 break;
             case "Delete":
+                questionService.delete(question.getId())
+                .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question1 -> {
+                                recyclerAdapter.remove(info.position);
+                                Toast.makeText(getApplicationContext(), "Question was deleted",
+                                        Toast.LENGTH_SHORT).show();
+                                if (info.position == 0){
+                                    nextButton();
+                                } else {
+                                    getRecyclerAdapter().notifyDataSetChanged();
+                                }
+                            },
+                            error -> Toast.makeText(getApplicationContext(),
+                                    String.format("Couldn't delete a question <%d>, reason: %s",
+                                            question.getId(), error.getLocalizedMessage()) +
+                                    error.getLocalizedMessage(), Toast.LENGTH_LONG).show()
+                    );;
                 break;
             default:
                 //nop
@@ -199,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void nextButton(View view) {
+    public void nextButton() {
         if (previousSelected) {
             previousSelected = false;
             recyclerAdapter.setPreviousSelected(false);
@@ -207,6 +227,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             loadNext();
         }
+    }
+
+    public void nextButton(View view) {
+        nextButton();
     }
 
     private void setStatisticFooter() {

@@ -46,6 +46,13 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         return questions.get(id);
     }
 
+    public void remove(int id) {
+        if (id >= 0 && id < questions.size()) {
+            questions.remove(id);
+        }
+        updateStats();
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewRecyclerItem;
 
