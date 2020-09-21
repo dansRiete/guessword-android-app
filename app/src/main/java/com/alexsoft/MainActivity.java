@@ -26,6 +26,9 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import static com.alexsoft.QuestionEditMode.CREATE;
+import static com.alexsoft.QuestionEditMode.UPDATE;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOCALHOST = "10.0.2.2";
@@ -84,7 +87,13 @@ public class MainActivity extends AppCompatActivity {
         fTrans = getSupportFragmentManager().beginTransaction();
         switch (item.getTitle().toString()){
             case "Edit":
-                frag1 = QuestionEditFragment.newInstance(question);
+                frag1 = QuestionEditFragment.newInstance(question, UPDATE);
+                fTrans.add(R.id.frgmCont, frag1);
+                fTrans.addToBackStack(null);
+                fTrans.commit();
+                break;
+            case "New":
+                frag1 = QuestionEditFragment.newInstance(CREATE);
                 fTrans.add(R.id.frgmCont, frag1);
                 fTrans.addToBackStack(null);
                 fTrans.commit();

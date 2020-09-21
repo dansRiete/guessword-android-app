@@ -1,6 +1,7 @@
 package com.alexsoft;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,34 +11,34 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.alexsoft.datamodel.Question;
+import com.alexsoft.datamodel.Word;
 import com.kuzko.aleksey.alexsoft.R;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class QuestionEditFragment extends Fragment {
 
     public static final String QUESTION_KEY = "Question";
+    public static final String QUESTION_EDIT_MODE_KEY = "QuestionEditMode";
     private Question question;
-    EditText forWord;
-    EditText natWord;
-    EditText label;
+    private QuestionEditMode questionEditMode;
     LinearLayout linearLayout;
 
-    AtomicInteger i1 = new AtomicInteger();
-    Map<Integer, String> map = new HashMap<>();
+    public static QuestionEditFragment newInstance(QuestionEditMode questionEditMode) {
+        return newInstance(null, questionEditMode);
+    }
 
-    public static QuestionEditFragment newInstance(Question question) {
+    public static QuestionEditFragment newInstance(Question question, QuestionEditMode questionEditMode) {
         QuestionEditFragment fragment = new QuestionEditFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable(QUESTION_KEY, question);
+        bundle.putSerializable(QUESTION_EDIT_MODE_KEY, questionEditMode);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -48,16 +49,26 @@ public class QuestionEditFragment extends Fragment {
         View view = inflater.inflate(R.layout.question_edit_fragment, null);
         if (getArguments() != null) {
             question = (Question) getArguments().getSerializable(QUESTION_KEY);
+            questionEditMode = (QuestionEditMode) getArguments().getSerializable(QUESTION_EDIT_MODE_KEY);
         }
         Button saveButton = view.findViewById(R.id.save);
         linearLayout = view.findViewById(R.id.editQuestionLayout);
 
-        question.getWords().forEach(word -> {
-            map.put(i1.getAndIncrement(), word.getWord());
-            EditText editText = new EditText(getContext());
-            editText.setText(word.getWord());
-            linearLayout.addView(editText);
-        });
+        if (questionEditMode == QuestionEditMode.UPDATE) {
+            question.getWords().forEach(word -> {
+                EditText editText = new EditText(getContext());
+                editText.setText(word.getWord());
+                linearLayout.addView(editText);
+            });
+        } else if (questionEditMode == QuestionEditMode.CREATE) {
+            EditText editTextEn = new EditText(getContext());
+            editTextEn.setHint("EN");
+            linearLayout.addView(editTextEn);
+
+            EditText editTextRu = new EditText(getContext());
+            editTextRu.setHint("RU");
+            linearLayout.addView(editTextRu);
+        }
 
         saveButton.setOnClickListener(this::save);
         /*forWord = view.findViewById(R.id.forWord);
@@ -74,17 +85,26 @@ public class QuestionEditFragment extends Fragment {
         return view;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void save(View view) {
 
         final int childCount = linearLayout.getChildCount();
         for (int i = 0, i1 = 0; i < childCount; i++, i1++) {
             EditText editText = (EditText) linearLayout.getChildAt(i);
             String editedWord = editText.getText().toString();
-            if(editedWord.equals("$del")) {
-                question.getWords().remove(i1);
+            String lang = editText.getHint().toString();
+            if (editedWord.equals("$del")) {
+                if (i1 < question.getWords().size()) {
+                    question.getWords().remove(i1);
+                }
                 i1--;
             } else {
-                question.getWords().get(i1).setWord(editedWord);
+                if (questionEditMode == QuestionEditMode.CREATE) {
+                    question = new Question();
+                    question.getWords().add(new Word(null, editedWord, lang, null));
+                } else {
+                    question.getWords().get(i1).setWord(editedWord);
+                }
             }
         }
         MainActivity activity = (MainActivity) getActivity();
@@ -92,7 +112,7 @@ public class QuestionEditFragment extends Fragment {
             return;
         }
         Context context = getContext();
-        activity.getQuestionService().update(question, question.getId())
+        saveOrUpdate(activity, question)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -104,5 +124,15 @@ public class QuestionEditFragment extends Fragment {
                         error -> Toast.makeText(context, "Failed saving a question, reason: " +
                                 error.getLocalizedMessage(), Toast.LENGTH_LONG).show()
                 );
+    }
+
+    private Observable<Question> saveOrUpdate(MainActivity activity, Question question) {
+        if (questionEditMode == QuestionEditMode.UPDATE) {
+            return activity.getQuestionService().update(question, question.getId());
+        } else if (questionEditMode == QuestionEditMode.CREATE) {
+            return activity.getQuestionService().create(question);
+        } else {
+            throw new RuntimeException("Not supported question edit mode " + questionEditMode.toString());
+        }
     }
 }

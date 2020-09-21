@@ -27,6 +27,9 @@ public interface QuestionService {
     @PUT("question/{id}")
     Observable<Question> update(@Body Question question, @Path("id") Integer id);
 
+    @POST("question")
+    Observable<Question> create(@Body Question question);
+
     @DELETE("question/{id}")
     Observable<Void> delete(@Path("id") Integer id);
 
