@@ -1,5 +1,7 @@
 package com.alexsoft.datamodel;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +15,7 @@ import static com.alexsoft.datamodel.Question.RUSSIAN_KEY;
 @NoArgsConstructor
 @AllArgsConstructor
 public
-class Word {
+class Word implements Serializable {
     private Integer id;
     private String word;
     private String language;
