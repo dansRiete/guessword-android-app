@@ -26,6 +26,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static com.alexsoft.MyApplication.getAppContext;
+import static com.alexsoft.datamodel.Question.ENGLISH_KEY;
+import static com.alexsoft.datamodel.Question.RUSSIAN_KEY;
 import static com.alexsoft.utils.QuestionUtils.alreadyStudiedAnsweredWrong;
 import static com.alexsoft.utils.QuestionUtils.hasBeenStudied;
 import static com.alexsoft.utils.QuestionUtils.isAnswered;
@@ -118,7 +120,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.itemView.setLongClickable(true);
         Question question = questions.get(position);
-        String foreignWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals("en"))
+        String foreignWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY))
                 .collect(Collectors.toList()));
 
         if (question.getAnsweredCorrectly() != null) {
@@ -147,7 +149,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         }
 
         String nativeWords = toString(question.getWords().stream().filter(word -> word.getLanguage()
-                .equals("ru")).collect(Collectors.toList()));
+                .equals(RUSSIAN_KEY)).collect(Collectors.toList()));
 
         if (question.getStudyPoints() <= 3 && !isAnswered(question)) {
             nativeWords = String.format("<font color='%s'>%s</font>",

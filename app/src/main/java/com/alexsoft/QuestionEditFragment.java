@@ -22,6 +22,9 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import static com.alexsoft.datamodel.Question.ENGLISH_KEY;
+import static com.alexsoft.datamodel.Question.RUSSIAN_KEY;
+
 public class QuestionEditFragment extends Fragment {
 
     public static final String QUESTION_KEY = "Question";
@@ -62,11 +65,11 @@ public class QuestionEditFragment extends Fragment {
             });
         } else if (questionEditMode == QuestionEditMode.CREATE) {
             EditText editTextEn = new EditText(getContext());
-            editTextEn.setHint("EN");
+            editTextEn.setHint(ENGLISH_KEY);
             linearLayout.addView(editTextEn);
 
             EditText editTextRu = new EditText(getContext());
-            editTextRu.setHint("RU");
+            editTextRu.setHint(RUSSIAN_KEY);
             linearLayout.addView(editTextRu);
         }
 
@@ -74,9 +77,9 @@ public class QuestionEditFragment extends Fragment {
         /*forWord = view.findViewById(R.id.forWord);
         natWord = view.findViewById(R.id.natWord);
         label = view.findViewById(R.id.label);
-        Optional<Word> en = question.getWords().stream().filter(word -> word.getLanguage().equals("en")).findFirst();
+        Optional<Word> en = question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY)).findFirst();
         en.ifPresent(word -> forWord.setText(word.getWord()));
-        Optional<Word> ru = question.getWords().stream().filter(word -> word.getLanguage().equals("ru")).findFirst();
+        Optional<Word> ru = question.getWords().stream().filter(word -> word.getLanguage().equals(RUSSIAN_KEY)).findFirst();
         ru.ifPresent(word -> natWord.setText(word.getWord()));
         if(question.getTag() != null && !question.getTag().equals("")) {
             label.setText(question.getTag());
@@ -89,6 +92,9 @@ public class QuestionEditFragment extends Fragment {
     private void save(View view) {
 
         final int childCount = linearLayout.getChildCount();
+        if (questionEditMode == QuestionEditMode.CREATE) {
+            question = new Question();
+        }
         for (int i = 0, i1 = 0; i < childCount; i++, i1++) {
             EditText editText = (EditText) linearLayout.getChildAt(i);
             String editedWord = editText.getText().toString();
@@ -100,7 +106,6 @@ public class QuestionEditFragment extends Fragment {
                 i1--;
             } else {
                 if (questionEditMode == QuestionEditMode.CREATE) {
-                    question = new Question();
                     question.getWords().add(new Word(null, editedWord, lang, null));
                 } else {
                     question.getWords().get(i1).setWord(editedWord);

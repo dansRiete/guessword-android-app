@@ -21,6 +21,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Question implements Serializable {
 
+    public static final String ENGLISH_KEY = "en";
+    public static final String RUSSIAN_KEY = "ru";
+
     private Integer id;
 
     private Double studyPoints;
