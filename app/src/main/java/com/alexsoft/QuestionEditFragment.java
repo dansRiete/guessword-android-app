@@ -61,6 +61,7 @@ public class QuestionEditFragment extends Fragment {
             question.getWords().forEach(word -> {
                 EditText editText = new EditText(getContext());
                 editText.setText(word.getWord());
+                editText.setHint(word.getLanguage());
                 linearLayout.addView(editText);
             });
         } else if (questionEditMode == QuestionEditMode.CREATE) {
