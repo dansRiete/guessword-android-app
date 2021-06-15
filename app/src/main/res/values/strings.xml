@@ -17,5 +17,7 @@
     <string name="remove">Remove</string>
     <string name="replace">Replace</string>
     <string name="stack">add to Back Stack</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 
 </resources>

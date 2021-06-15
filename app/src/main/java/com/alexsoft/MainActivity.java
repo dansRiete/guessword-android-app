@@ -10,13 +10,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alexsoft.datamodel.Question;
 import com.alexsoft.listener.RecyclerItemClickListener;
 import com.alexsoft.service.QuestionService;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.kuzko.aleksey.alexsoft.R;
 
 import retrofit2.Retrofit;
@@ -32,9 +44,10 @@ import static com.alexsoft.QuestionEditMode.UPDATE;
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOCALHOST = "10.0.2.2";
-    private static final String PROHOSTER = "185.212.128.246";
-    private static final String PORT = "8080";
-    private final static String GUESSWORD_SERVER = "http://" + PROHOSTER + ":" + PORT + "/api/";
+    private static final String NP300 = "192.168.1.5";
+    private static final String PI4 = "134.249.167.33";
+    private static final int PORT = 32725;
+    private final static String GUESSWORD_SERVER = "http://" + PI4 + ":" + PORT + "/api/";
 
     Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -48,12 +61,28 @@ public class MainActivity extends AppCompatActivity {
     TextView serviceText;
     QuestionEditFragment frag1;
     FragmentTransaction fTrans;
+    private DrawerLayout mDrawer;
+    private Toolbar toolbar;
+    private NavigationView nvDrawer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Set a Toolbar to replace the ActionBar.
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // This will display an Up icon (<-), we will replace it with hamburger later
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Find our drawer view
+        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        nvDrawer = (NavigationView) findViewById(R.id.nvView);
+        // Setup drawer view
+        setupDrawerContent(nvDrawer);
 
         mRecyclerView = findViewById(R.id.my_recycler_view);
         serviceText = findViewById(R.id.serviceInfoText);
@@ -123,6 +152,71 @@ public class MainActivity extends AppCompatActivity {
                 //nop
         }
         return false;
+    }
+
+
+
+    public void selectDrawerItem(MenuItem menuItem) {
+        // Create a new fragment and specify the fragment to show based on nav item clicked
+        Fragment fragment = null;
+        Class fragmentClass = null;
+        switch(menuItem.getItemId()) {
+            case R.id.nav_first_fragment:
+                Toast.makeText(MainActivity.this, "nav_first_fragment", Toast.LENGTH_LONG).show();
+//                fragmentClass = FirstFragment.class;
+                break;
+            case R.id.nav_second_fragment:
+                Toast.makeText(MainActivity.this, "nav_second_fragment", Toast.LENGTH_LONG).show();
+//                fragmentClass = SecondFragment.class;
+                break;
+            case R.id.nav_third_fragment:
+                Toast.makeText(MainActivity.this, "nav_third_fragment", Toast.LENGTH_LONG).show();
+//                fragmentClass = ThirdFragment.class;
+                break;
+            default:
+                Toast.makeText(MainActivity.this, "default_fragment", Toast.LENGTH_LONG).show();
+//                fragmentClass = FirstFragment.class;
+        }
+
+        /*try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+
+        // Highlight the selected item has been done by NavigationView
+        menuItem.setChecked(true);
+        // Set action bar title
+        setTitle(menuItem.getTitle());
+        // Close the navigation drawer
+        mDrawer.closeDrawers();
+    }
+
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        selectDrawerItem(menuItem);
+                        return true;
+                    }
+                });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // The action bar home/up action should open or close the drawer.
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawer.openDrawer(GravityCompat.START);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void iDontKnowButtonAction(View view) {

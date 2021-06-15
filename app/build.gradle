@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "25.0.3"
     defaultConfig {
         applicationId "com.alexsoft"
         minSdkVersion 24
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -24,24 +24,22 @@ android {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.11.2'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.10.3'
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.squareup.retrofit2:retrofit:2.2.0'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.2'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.3'
     implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
     implementation group: 'io.reactivex', name: 'rxandroid', version: '1.2.1'
-    // https://mvnrepository.com/artifact/com.squareup.retrofit2/adapter-rxjava
     implementation group: 'com.squareup.retrofit2', name: 'adapter-rxjava', version: '2.2.0'
     androidTestCompile('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     testImplementation 'junit:junit:4.12'
+    implementation "com.google.android.material:material:1.4.0-rc01"
 }
