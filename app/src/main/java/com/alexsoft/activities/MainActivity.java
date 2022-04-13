@@ -1,4 +1,7 @@
-package com.alexsoft;
+package com.alexsoft.activities;
+
+import static com.alexsoft.enums.QuestionEditMode.CREATE;
+import static com.alexsoft.enums.QuestionEditMode.UPDATE;
 
 import android.os.Bundle;
 import android.text.Html;
@@ -16,18 +19,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alexsoft.adapter.RecyclerAdapter;
 import com.alexsoft.datamodel.Question;
+import com.alexsoft.fragment.QuestionEditFragment;
 import com.alexsoft.listener.RecyclerItemClickListener;
 import com.alexsoft.service.QuestionService;
-import com.google.android.material.navigation.NavigationView;
+import com.alexsoft.view.ContextMenuRecyclerView;
 import com.google.android.material.navigation.NavigationView;
 import com.kuzko.aleksey.alexsoft.R;
 
@@ -38,33 +38,24 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static com.alexsoft.QuestionEditMode.CREATE;
-import static com.alexsoft.QuestionEditMode.UPDATE;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOCALHOST = "10.0.2.2";
     private static final String NP300 = "192.168.1.5";
     private static final String PI4 = "134.249.167.33";
     private static final int PORT = 32725;
-    private final static String GUESSWORD_SERVER = "http://" + PI4 + ":" + PORT + "/api/";
+    private static final String GUESSWORD_SERVER = "http://" + PI4 + ":" + PORT + "/api/";
 
-    Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(JacksonConverterFactory.create())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
-    private QuestionService questionService = retrofit.create(QuestionService.class);
-    private RecyclerAdapter recyclerAdapter = new RecyclerAdapter();
-    private RecyclerView mRecyclerView;
+    private final QuestionService questionService = retrofit.create(QuestionService.class);
+    private final RecyclerAdapter recyclerAdapter = new RecyclerAdapter();
     private boolean previousSelected;
-    TextView serviceText;
-    QuestionEditFragment frag1;
-    FragmentTransaction fTrans;
+    private TextView serviceText;
     private DrawerLayout mDrawer;
-    private Toolbar toolbar;
-    private NavigationView nvDrawer;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,19 +63,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Set a Toolbar to replace the ActionBar.
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // This will display an Up icon (<-), we will replace it with hamburger later
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Find our drawer view
-        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        nvDrawer = (NavigationView) findViewById(R.id.nvView);
+        mDrawer = findViewById(R.id.drawer_layout);
+        NavigationView nvDrawer = findViewById(R.id.nvView);
         // Setup drawer view
         setupDrawerContent(nvDrawer);
 
-        mRecyclerView = findViewById(R.id.my_recycler_view);
+        RecyclerView mRecyclerView = findViewById(R.id.my_recycler_view);
         serviceText = findViewById(R.id.serviceInfoText);
         mRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, (view, position) ->
@@ -103,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-
-        // Inflate Menu from xml resource
         MenuInflater menuInflater = this.getMenuInflater();
         menuInflater.inflate(R.menu.context_menu, menu);
     }
@@ -113,10 +102,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item) {
         ContextMenuRecyclerView.RecyclerContextMenuInfo info = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
         Question question = recyclerAdapter.getQuestion(info.position);
-        fTrans = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction fTrans = getSupportFragmentManager().beginTransaction();
         switch (item.getTitle().toString()){
             case "Edit":
-                frag1 = QuestionEditFragment.newInstance(question, UPDATE);
+                QuestionEditFragment frag1 = QuestionEditFragment.newInstance(question, UPDATE);
                 fTrans.add(R.id.frgmCont, frag1);
                 fTrans.addToBackStack(null);
                 fTrans.commit();
@@ -198,22 +187,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem);
-                        return true;
-                    }
+                menuItem -> {
+                    selectDrawerItem(menuItem);
+                    return true;
                 });
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // The action bar home/up action should open or close the drawer.
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                mDrawer.openDrawer(GravityCompat.START);
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            mDrawer.openDrawer(GravityCompat.START);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

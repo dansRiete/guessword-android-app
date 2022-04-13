@@ -1,4 +1,4 @@
-package com.alexsoft.datamodel;
+package com.alexsoft.utils;
 
 import android.os.Build;
 

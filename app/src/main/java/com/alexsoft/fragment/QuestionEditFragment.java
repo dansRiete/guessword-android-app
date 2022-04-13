@@ -1,4 +1,4 @@
-package com.alexsoft;
+package com.alexsoft.fragment;
 
 import android.content.Context;
 import android.os.Build;
@@ -14,6 +14,8 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
+import com.alexsoft.activities.MainActivity;
+import com.alexsoft.enums.QuestionEditMode;
 import com.alexsoft.datamodel.Question;
 import com.alexsoft.datamodel.Word;
 import com.kuzko.aleksey.alexsoft.R;
@@ -75,16 +77,6 @@ public class QuestionEditFragment extends Fragment {
         }
 
         saveButton.setOnClickListener(this::save);
-        /*forWord = view.findViewById(R.id.forWord);
-        natWord = view.findViewById(R.id.natWord);
-        label = view.findViewById(R.id.label);
-        Optional<Word> en = question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY)).findFirst();
-        en.ifPresent(word -> forWord.setText(word.getWord()));
-        Optional<Word> ru = question.getWords().stream().filter(word -> word.getLanguage().equals(RUSSIAN_KEY)).findFirst();
-        ru.ifPresent(word -> natWord.setText(word.getWord()));
-        if(question.getTag() != null && !question.getTag().equals("")) {
-            label.setText(question.getTag());
-        }*/
 
         return view;
     }

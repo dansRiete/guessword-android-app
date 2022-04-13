@@ -1,8 +1,5 @@
-package com.alexsoft;
+package com.alexsoft.adapter;
 
-/**
- * Created by Aleks on 20.03.2017.
- */
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,23 +22,27 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.alexsoft.MyApplication.getAppContext;
+import static com.alexsoft.GuesswordApplication.getAppContext;
 import static com.alexsoft.datamodel.Question.ENGLISH_KEY;
 import static com.alexsoft.datamodel.Question.RUSSIAN_KEY;
 import static com.alexsoft.utils.QuestionUtils.alreadyStudiedAnsweredWrong;
 import static com.alexsoft.utils.QuestionUtils.hasBeenStudied;
 import static com.alexsoft.utils.QuestionUtils.isAnswered;
 
+
+/**
+ * Created by Aleks on 20.03.2017.
+ */
 @Getter
 @Setter
-class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private List<Question> questions = new LinkedList<>();
     private boolean previousSelected;
     private int rightAnswerPercentage = 0;
     private int studiedQuestions = 0;
 
-    RecyclerAdapter() {
+    public RecyclerAdapter() {
     }
 
     public Question getQuestion(int id) {
@@ -64,14 +65,14 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         }
     }
 
-    void addItem(Question question) {
+    public void addItem(Question question) {
         if (question != null) {
             questions.add(0, question);
         }
         updateStats();
     }
 
-    Question getCurrent() {
+    public Question getCurrent() {
         if (previousSelected) {
             return questions.size() > 1 ? questions.get(1) : null;
         } else {
@@ -79,7 +80,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         }
     }
 
-    Question setCurrent(Question question) {
+    public Question setCurrent(Question question) {
         Question question1;
         if (previousSelected) {
             question1 = questions.set(1, question);
@@ -194,5 +195,13 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         if (questions.size() > 1) {
             this.previousSelected = previousSelected;
         }
+    }
+
+    public int getRightAnswerPercentage() {
+        return rightAnswerPercentage;
+    }
+
+    public int getStudiedQuestions() {
+        return studiedQuestions;
     }
 }

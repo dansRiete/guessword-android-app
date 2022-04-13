@@ -1,4 +1,4 @@
-package com.alexsoft;
+package com.alexsoft.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
