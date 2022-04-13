@@ -10,4 +10,14 @@
     <string name="rightAnsweredQuestionColor">#388e3c</string>
     <string name="wrongAnsweredQuestionColor">#d84315</string>
     <string name="unAnsweredQuestionColor">gray</string>
+
+    <string name="frag1_text">Fragment 1</string>
+    <string name="frag2_text">Fragment 2</string>
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
+    <string name="replace">Replace</string>
+    <string name="stack">add to Back Stack</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
 </resources>

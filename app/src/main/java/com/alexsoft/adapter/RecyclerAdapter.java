@@ -1,12 +1,8 @@
-package com.alexsoft;
+package com.alexsoft.adapter;
 
-/**
- * Created by Aleks on 20.03.2017.
- */
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
@@ -26,17 +22,38 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.alexsoft.MyApplication.getAppContext;
+import static com.alexsoft.GuesswordApplication.getAppContext;
+import static com.alexsoft.datamodel.Question.ENGLISH_KEY;
+import static com.alexsoft.datamodel.Question.RUSSIAN_KEY;
+import static com.alexsoft.utils.QuestionUtils.alreadyStudiedAnsweredWrong;
+import static com.alexsoft.utils.QuestionUtils.hasBeenStudied;
+import static com.alexsoft.utils.QuestionUtils.isAnswered;
 
+
+/**
+ * Created by Aleks on 20.03.2017.
+ */
 @Getter
 @Setter
-class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private List<Question> questions = new LinkedList<>();
     private boolean previousSelected;
     private int rightAnswerPercentage = 0;
+    private int studiedQuestions = 0;
 
-    RecyclerAdapter() {
+    public RecyclerAdapter() {
+    }
+
+    public Question getQuestion(int id) {
+        return questions.get(id);
+    }
+
+    public void remove(int id) {
+        if (id >= 0 && id < questions.size()) {
+            questions.remove(id);
+        }
+        updateStats();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -48,14 +65,14 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         }
     }
 
-    void addItem(Question question) {
+    public void addItem(Question question) {
         if (question != null) {
             questions.add(0, question);
         }
-        recalculatePercentage();
+        updateStats();
     }
 
-    Question getCurrent() {
+    public Question getCurrent() {
         if (previousSelected) {
             return questions.size() > 1 ? questions.get(1) : null;
         } else {
@@ -63,20 +80,21 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         }
     }
 
-    Question setCurrent(Question question) {
+    public Question setCurrent(Question question) {
         Question question1;
         if (previousSelected) {
             question1 = questions.set(1, question);
         } else {
             question1 =  questions.set(0, question);
         }
-        recalculatePercentage();
+        updateStats();
         return question1;
     }
 
-    private void recalculatePercentage() {
+    private void updateStats() {
         int rights = 0;
         int total = 0;
+        studiedQuestions = 0;
         for(Question question : questions) {
             if(question.getAnsweredCorrectly() != null) {
                 if(question.getAnsweredCorrectly()) {
@@ -84,8 +102,13 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
                 }
                 total++;
             }
+            if (hasBeenStudied(question)) {
+                studiedQuestions++;
+            } else if (alreadyStudiedAnsweredWrong(question)) {
+                studiedQuestions--;
+            }
         }
-        rightAnswerPercentage = total == 0 ? 0 : rights* 100 / total;
+        rightAnswerPercentage = total == 0 ? 0 : rights * 100 / total;
     }
 
     @Override
@@ -96,26 +119,27 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.itemView.setLongClickable(true);
         Question question = questions.get(position);
-        String foreignWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals("en"))
+        String foreignWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY))
                 .collect(Collectors.toList()));
 
         if (question.getAnsweredCorrectly() != null) {
-            boolean a;
+            boolean makeBold;
             if (question.getAnsweredCorrectly()) {
-                a = question.getPreviousProbabilityFactor() > 3 && question.getProbabilityFactor() <= 3;
+                makeBold = question.getPreviousStudyPoints() > 3 && question.getStudyPoints() <= 3;
                 foreignWords = String.format("<font color='%s'>%s</font>",
                         getAppContext().getString(R.string.rightAnsweredQuestionColor),
                         foreignWords
                 );
             } else {
-                a = question.getPreviousProbabilityFactor() <= 3 && question.getProbabilityFactor() > 3;
+                makeBold = question.getPreviousStudyPoints() <= 3 && question.getStudyPoints() > 3;
                 foreignWords = String.format("<font color='%s'>%s</font>",
                         getAppContext().getString(R.string.wrongAnsweredQuestionColor),
                         foreignWords
                 );
             }
-            if(a) {
+            if(makeBold) {
                 foreignWords = "<b>" + foreignWords + "</b>";
             }
         } else {
@@ -125,9 +149,10 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
             );
         }
 
-        String nativeWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals("ru"))
-                .collect(Collectors.toList()));
-        if(question.getProbabilityFactor() <= 3) {
+        String nativeWords = toString(question.getWords().stream().filter(word -> word.getLanguage()
+                .equals(RUSSIAN_KEY)).collect(Collectors.toList()));
+
+        if (question.getStudyPoints() <= 3 && !isAnswered(question)) {
             nativeWords = String.format("<font color='%s'>%s</font>",
                     getAppContext().getString(R.string.rightAnsweredQuestionColor),
                     nativeWords
@@ -138,14 +163,14 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         String formattedWords = String.format("%d. %s", questions.size() - position, words);
         String formattedProbabilityValues;
         if (question.getAnsweredCorrectly() == null) {
-            formattedProbabilityValues = String.format("[ %.1f/%.2f ]", question.getProbabilityFactor(),
-                    question.getProbabilityMultiplier());
+            formattedProbabilityValues = String.format("[ %.1f/%.2f ]", question.getStudyPoints(),
+                    question.getStudyPointsMultiplier());
         } else {
             formattedProbabilityValues = String.format("[ %.1f>%.1f / %.2f>%.2f ]",
-                    question.getPreviousProbabilityFactor(),
-                    question.getProbabilityFactor(),
-                    question.getPreviousProbabilityMultiplier(),
-                    question.getProbabilityMultiplier()
+                    question.getPreviousStudyPoints(),
+                    question.getStudyPoints(),
+                    question.getPreviousStudyPointsMultiplier(),
+                    question.getStudyPointsMultiplier()
             );
         }
         holder.textViewRecyclerItem.setText(Html.fromHtml(formattedWords + " " + formattedProbabilityValues), TextView.BufferType.SPANNABLE);
@@ -170,5 +195,13 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         if (questions.size() > 1) {
             this.previousSelected = previousSelected;
         }
+    }
+
+    public int getRightAnswerPercentage() {
+        return rightAnswerPercentage;
+    }
+
+    public int getStudiedQuestions() {
+        return studiedQuestions;
     }
 }
