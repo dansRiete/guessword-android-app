@@ -9,6 +9,7 @@ import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,13 +41,10 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String LOCALHOST = "10.0.2.2";
-    private static final String NP300 = "192.168.1.5";
-    private static final String PI4 = "134.249.167.33";
-    private static final int PORT = 32725;
-    private static final String GUESSWORD_SERVER = "http://" + PI4 + ":" + PORT + "/api/";
+    private static final String LOCALHOST = "http://10.0.2.2:31489/api/";
+    private static final String PI4 =       "http://134.249.167.33:32725/api/";
 
-    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(PI4)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(JacksonConverterFactory.create())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -86,6 +84,53 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(recyclerAdapter);
         registerForContextMenu(mRecyclerView);
+
+        Button rightButton = (Button) findViewById(R.id.rigthButton);
+        rightButton.setOnLongClickListener(v -> {
+            questionService.previousRight()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question -> {
+                                question.setAnsweredCorrectly(true);
+                                question.setPreviousStudyPoints(recyclerAdapter.getPrevious().getPreviousStudyPoints());
+                                question.setPreviousStudyPointsMultiplier(recyclerAdapter.getPrevious().getPreviousStudyPointsMultiplier());
+                                recyclerAdapter.setPrevious(question);
+                                recyclerAdapter.notifyDataSetChanged();
+                                setStatisticFooter();
+
+                            },
+                            error -> {
+                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
+                            }
+                    );
+            return true;
+        });
+
+        Button wrongButton = (Button) findViewById(R.id.leftButton);
+        wrongButton.setOnLongClickListener(v -> {
+            questionService.previousWrong()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question -> {
+                                question.setAnsweredCorrectly(false);
+                                question.setPreviousStudyPoints(recyclerAdapter.getPrevious().getPreviousStudyPoints());
+                                question.setPreviousStudyPointsMultiplier(recyclerAdapter.getPrevious().getPreviousStudyPointsMultiplier());
+                                recyclerAdapter.setPrevious(question);
+                                recyclerAdapter.notifyDataSetChanged();
+                                setStatisticFooter();
+
+                            },
+                            error -> {
+                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
+                            }
+                    );
+            return true;
+        });
+
 
         loadNext();
 

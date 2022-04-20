@@ -73,11 +73,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
 
     public Question getCurrent() {
-        if (previousSelected) {
-            return questions.size() > 1 ? questions.get(1) : null;
-        } else {
             return questions.size() > 0 ? questions.get(0) : null;
-        }
+    }
+
+    public Question getPrevious() {
+        return questions.size() > 1 ? questions.get(1) : null;
+    }
+
+    public Question setPrevious(Question question) {
+        Question set = questions.set(1, question);
+        updateStats();
+        return set;
     }
 
     public Question setCurrent(Question question) {
