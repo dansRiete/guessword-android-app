@@ -39,14 +39,10 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String GUESSWORD_SERVER = "http://" + "134.249.167.33" + ":" + 32725 + "/api/";
+    private static final String LOCALHOST = "http://" + "10.0.2.2" + ":" + 26452 + "/api/";
 
-    private static final String LOCALHOST = "10.0.2.2";
-    private static final String NP300 = "192.168.1.5";
-    private static final String PI4 = "134.249.167.33";
-    private static final int PORT = 32725;
-    private static final String GUESSWORD_SERVER = "http://" + PI4 + ":" + PORT + "/api/";
-
-    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(LOCALHOST)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(JacksonConverterFactory.create())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
