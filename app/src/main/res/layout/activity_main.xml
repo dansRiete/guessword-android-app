@@ -62,6 +62,7 @@
 
                 <Button
                     android:onClick="iDontKnowButtonAction"
+                    android:longClickable="true"
                     android:id="@+id/leftButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -70,6 +71,7 @@
 
                 <Button
                     android:onClick="iKnowButtonAction"
+                    android:longClickable="true"
                     android:id="@+id/rigthButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

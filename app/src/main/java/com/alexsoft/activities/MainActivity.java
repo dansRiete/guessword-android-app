@@ -9,6 +9,7 @@ import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,6 +83,53 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(recyclerAdapter);
         registerForContextMenu(mRecyclerView);
+
+        Button rightButton = (Button) findViewById(R.id.rigthButton);
+        rightButton.setOnLongClickListener(v -> {
+            questionService.previousRight()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question -> {
+                                question.setAnsweredCorrectly(true);
+                                question.setPreviousStudyPoints(recyclerAdapter.getPrevious().getPreviousStudyPoints());
+                                question.setPreviousStudyPointsMultiplier(recyclerAdapter.getPrevious().getPreviousStudyPointsMultiplier());
+                                recyclerAdapter.setPrevious(question);
+                                recyclerAdapter.notifyDataSetChanged();
+                                setStatisticFooter();
+
+                            },
+                            error -> {
+                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
+                            }
+                    );
+            return true;
+        });
+
+        Button wrongButton = (Button) findViewById(R.id.leftButton);
+        wrongButton.setOnLongClickListener(v -> {
+            questionService.previousWrong()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            question -> {
+                                question.setAnsweredCorrectly(false);
+                                question.setPreviousStudyPoints(recyclerAdapter.getPrevious().getPreviousStudyPoints());
+                                question.setPreviousStudyPointsMultiplier(recyclerAdapter.getPrevious().getPreviousStudyPointsMultiplier());
+                                recyclerAdapter.setPrevious(question);
+                                recyclerAdapter.notifyDataSetChanged();
+                                setStatisticFooter();
+
+                            },
+                            error -> {
+                                Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
+                            }
+                    );
+            return true;
+        });
+
 
         loadNext();
 

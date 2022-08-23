@@ -1,14 +1,11 @@
 package com.alexsoft.datamodel;
 
-import java.io.Serializable;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import static com.alexsoft.datamodel.Question.ENGLISH_KEY;
 import static com.alexsoft.datamodel.Question.RUSSIAN_KEY;
+
+import androidx.annotation.NonNull;
+
+import java.io.Serializable;
 
 public class Word implements Serializable {
 
@@ -17,6 +14,7 @@ public class Word implements Serializable {
     private String language;
     private String transcription;
 
+    @SuppressWarnings("unused")
     public Word() {
     }
 
@@ -27,6 +25,7 @@ public class Word implements Serializable {
         this.transcription = transcription;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return String.format("%s%s", word, transcription != null && language.equals(RUSSIAN_KEY) ? String.format(" [%s]", transcription) : "");
