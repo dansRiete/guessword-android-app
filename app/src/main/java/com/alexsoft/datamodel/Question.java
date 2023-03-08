@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Question implements Serializable {
 
-    public static final String ENGLISH_KEY = "en";
+    public static final String ENGLISH_KEY = "en";  // todo convert to enum
     public static final String RUSSIAN_KEY = "ru";
 
     private Integer id;

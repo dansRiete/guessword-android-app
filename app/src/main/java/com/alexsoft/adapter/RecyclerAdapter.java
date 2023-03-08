@@ -127,8 +127,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.itemView.setLongClickable(true);
         Question question = questions.get(position);
-        String foreignWords = toString(question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY))
-                .collect(Collectors.toList()));
+        String foreignWords = questionToString(question, ENGLISH_KEY);
 
         if (question.getAnsweredCorrectly() != null) {
             boolean makeBold;
@@ -155,8 +154,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             );
         }
 
-        String nativeWords = toString(question.getWords().stream().filter(word -> word.getLanguage()
-                .equals(RUSSIAN_KEY)).collect(Collectors.toList()));
+        String nativeWords = questionToString(question, RUSSIAN_KEY);
 
         if (question.getStudyPoints() <= 3 && !isAnswered(question)) {
             nativeWords = String.format("<font color='%s'>%s</font>",
@@ -193,8 +191,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         return questions.size();
     }
 
-    private String toString(List<Word> words) {
-        return words.stream().map(Word::toQuestionString).collect(Collectors.joining(", "));
+    public static String questionToString(Question question, String language) {
+        return String.format("%s - %s",
+                question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY)).map(Word::toQuestionString).collect(Collectors.joining(", ")),
+                question.getWords().stream().filter(word -> word.getLanguage().equals(RUSSIAN_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY)).map(Word::toQuestionString).collect(Collectors.joining(", "))
+        );
     }
 
     public void setPreviousSelected(boolean previousSelected) {
