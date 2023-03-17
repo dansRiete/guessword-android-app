@@ -191,7 +191,7 @@ public class QuestionEditFragment extends Fragment {
 
     @NonNull
     private String getMatchedQuestionsTextView(List<Question> matchedQuestions, String language) {
-        return matchedQuestions.stream().map(question1 -> RecyclerAdapter.questionToString(question1, language)).collect(Collectors.joining("\n"));
+        return matchedQuestions.stream().map(question1 -> RecyclerAdapter.answeredQuestionToString(question1, language)).collect(Collectors.joining("\n"));
     }
 
     @NonNull

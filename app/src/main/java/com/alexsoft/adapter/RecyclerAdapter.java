@@ -19,9 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import static com.alexsoft.GuesswordApplication.getAppContext;
 import static com.alexsoft.datamodel.Question.ENGLISH_KEY;
 import static com.alexsoft.datamodel.Question.RUSSIAN_KEY;
@@ -33,8 +30,8 @@ import static com.alexsoft.utils.QuestionUtils.isAnswered;
 /**
  * Created by Aleks on 20.03.2017.
  */
-@Getter
-@Setter
+//@Getter
+//@Setter
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private List<Question> questions = new LinkedList<>();
@@ -192,6 +189,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
 
     public static String questionToString(Question question, String language) {
+        return question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY)).map(Word::toQuestionString).collect(Collectors.joining(", "));
+    }
+
+    public static String answeredQuestionToString(Question question, String language) {
         return String.format("%s - %s",
                 question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY)).map(Word::toQuestionString).collect(Collectors.joining(", ")),
                 question.getWords().stream().filter(word -> word.getLanguage().equals(RUSSIAN_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY)).map(Word::toQuestionString).collect(Collectors.joining(", "))
