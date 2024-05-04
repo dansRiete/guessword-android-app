@@ -209,21 +209,24 @@ public class QuestionEditFragment extends Fragment {
             question = new Question();
         }
         for (int i = 0, i1 = 0; i < childCount; i++, i1++) {
-            EditText editText = (EditText) relativeLayout.getChildAt(i);
-            String editedWord = editText.getText().toString();
-            String lang = editText.getHint().toString();
-            if (editedWord.equals("$del")) {
-                if (i1 < question.getWords().size()) {
-                    question.getWords().remove(i1);
-                }
-                i1--;
-            } else {
-                if (questionEditMode == QuestionEditMode.CREATE) {
-                    question.getWords().add(new Word(null, editedWord, lang, null));
+            if (relativeLayout.getChildAt(i) instanceof EditText) {
+                EditText editText = (EditText) relativeLayout.getChildAt(i);
+                String editedWord = editText.getText().toString();
+                String lang = editText.getHint().toString();
+                if (editedWord.equals("$del")) {
+                    if (i1 < question.getWords().size()) {
+                        question.getWords().remove(i1);
+                    }
+                    i1--;
                 } else {
-                    question.getWords().get(i1).setWord(editedWord);
+                    if (questionEditMode == QuestionEditMode.CREATE) {
+                        question.getWords().add(new Word(null, editedWord, lang, null));
+                    } else {
+                        question.getWords().get(i1).setWord(editedWord);
+                    }
                 }
             }
+
         }
         MainActivity activity = (MainActivity) getActivity();
         if (activity == null) {
