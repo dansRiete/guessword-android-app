@@ -1,6 +1,7 @@
 package com.alexsoft.service;
 
 import com.alexsoft.datamodel.Question;
+import com.alexsoft.datamodel.SuggestionDto;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
@@ -44,5 +46,8 @@ public interface QuestionService {
 
     @POST("answer/previousWrong")
     Observable<Question> previousWrong();
+
+    @GET("suggestion")
+    Observable<SuggestionDto> getSuggestions(@Query("word") String word, @Query("language") String language);
 
 }

@@ -40,10 +40,10 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String GUESSWORD_SERVER = "http://" + "209.42.55.245" + ":" + 24868 + "/api/";
-    private static final String LOCALHOST = "http://" + "10.0.2.2" + ":" + 26452 + "/api/";
+    private static final String GUESSWORD_SERVER = "http://" + "192.168.0.201" + ":" + 24868 + "/api/";
+    private static final String LOCALHOST = "http://" + "10.0.2.2" + ":" + 24868 + "/api/";
 
-    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(LOCALHOST)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(JacksonConverterFactory.create())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -193,22 +193,19 @@ public class MainActivity extends AppCompatActivity {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
         Class fragmentClass = null;
-        switch(menuItem.getItemId()) {
-            case R.id.nav_first_fragment:
-                Toast.makeText(MainActivity.this, "nav_first_fragment", Toast.LENGTH_LONG).show();
-//                fragmentClass = FirstFragment.class;
-                break;
-            case R.id.nav_second_fragment:
-                Toast.makeText(MainActivity.this, "nav_second_fragment", Toast.LENGTH_LONG).show();
-//                fragmentClass = SecondFragment.class;
-                break;
-            case R.id.nav_third_fragment:
-                Toast.makeText(MainActivity.this, "nav_third_fragment", Toast.LENGTH_LONG).show();
-//                fragmentClass = ThirdFragment.class;
-                break;
-            default:
-                Toast.makeText(MainActivity.this, "default_fragment", Toast.LENGTH_LONG).show();
-//                fragmentClass = FirstFragment.class;
+        int id = menuItem.getItemId();
+        if (id == R.id.nav_first_fragment) {
+            Toast.makeText(MainActivity.this, "nav_first_fragment", Toast.LENGTH_LONG).show();
+//            fragmentClass = FirstFragment.class;
+        } else if (id == R.id.nav_second_fragment) {
+            Toast.makeText(MainActivity.this, "nav_second_fragment", Toast.LENGTH_LONG).show();
+//            fragmentClass = SecondFragment.class;
+        } else if (id == R.id.nav_third_fragment) {
+            Toast.makeText(MainActivity.this, "nav_third_fragment", Toast.LENGTH_LONG).show();
+//            fragmentClass = ThirdFragment.class;
+        } else {
+            Toast.makeText(MainActivity.this, "default_fragment", Toast.LENGTH_LONG).show();
+//            fragmentClass = FirstFragment.class;
         }
 
         /*try {

@@ -22,12 +22,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
+import com.kuzko.aleksey.alexsoft.R;
 import com.alexsoft.activities.MainActivity;
 import com.alexsoft.adapter.RecyclerAdapter;
+import com.alexsoft.datamodel.SuggestionDto;
 import com.alexsoft.enums.QuestionEditMode;
 import com.alexsoft.datamodel.Question;
 import com.alexsoft.datamodel.Word;
-import com.kuzko.aleksey.alexsoft.R;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -115,57 +116,93 @@ public class QuestionEditFragment extends Fragment {
                 relativeLayout.addView(editText);
             });
         } else if (questionEditMode == QuestionEditMode.CREATE) {
-            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
             EditText editTextEn = new EditText(getContext());
             editTextEn.setHint(ENGLISH_KEY);
             editTextEn.setId(maxId.get());
             editTextEn.setLayoutParams(new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-            editTextEn.addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-                @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-                @Override public void afterTextChanged(Editable editable) {
-                    try {
-                        if (CollectionUtils.isEmpty(allQuestions) || "".equals(editable.toString())) {
-                            hintsTextView.setText("");
-                            return;
-                        }
-                        // Find words that match current user input
-                        List<Question> matchedQuestions = findMattchedQuestions(editable, ENGLISH_KEY);
 
-                        //Set hits text view with possible matches
-                        hintsTextView.setText(getMatchedQuestionsTextView(matchedQuestions, ENGLISH_KEY));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            relativeLayout.addView(editTextEn);
-
+            RelativeLayout.LayoutParams ruParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            ruParams.addRule(BELOW, maxId.get());
             EditText editTextRu = new EditText(getContext());
             editTextRu.setHint(RUSSIAN_KEY);
-            layoutParams.addRule(BELOW, maxId.get());
             editTextRu.setId(maxId.incrementAndGet());
-            editTextRu.setLayoutParams(layoutParams);
-            editTextRu.addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-                @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            editTextRu.setLayoutParams(ruParams);
+
+            editTextEn.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int i, int i1, int i2) {}
+                @Override public void onTextChanged(CharSequence s, int i, int i1, int i2) {}
                 @Override public void afterTextChanged(Editable editable) {
                     try {
-                        if (CollectionUtils.isEmpty(allQuestions) || "".equals(editable.toString())) {
+                        String text = editable.toString();
+                        if (!CollectionUtils.isEmpty(allQuestions) && !text.isEmpty()) {
+                            hintsTextView.setText(getMatchedQuestionsTextView(findMattchedQuestions(editable, ENGLISH_KEY), ENGLISH_KEY));
+                        } else {
                             hintsTextView.setText("");
-                            return;
                         }
-                        // Find words that match current user input
-                        List<Question> matchedQuestions = findMattchedQuestions(editable, RUSSIAN_KEY);
-
-                        //Set hits text view with possible matches
-                        hintsTextView.setText(getMatchedQuestionsTextView(matchedQuestions, RUSSIAN_KEY));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             });
+
+            editTextRu.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int i, int i1, int i2) {}
+                @Override public void onTextChanged(CharSequence s, int i, int i1, int i2) {}
+                @Override public void afterTextChanged(Editable editable) {
+                    try {
+                        String text = editable.toString();
+                        if (!CollectionUtils.isEmpty(allQuestions) && !text.isEmpty()) {
+                            hintsTextView.setText(getMatchedQuestionsTextView(findMattchedQuestions(editable, RUSSIAN_KEY), RUSSIAN_KEY));
+                        } else {
+                            hintsTextView.setText("");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            Button suggestButton = new Button(getContext());
+            suggestButton.setText("Suggest by LLM");
+            RelativeLayout.LayoutParams suggestParams = new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+            suggestParams.addRule(BELOW, maxId.get());
+            suggestButton.setId(maxId.incrementAndGet());
+            suggestButton.setLayoutParams(suggestParams);
+            suggestButton.setOnClickListener(v -> {
+                String enText = editTextEn.getText().toString().trim();
+                String ruText = editTextRu.getText().toString().trim();
+                String sourceText;
+                String sourceLang;
+                EditText targetField;
+                if (!enText.isEmpty()) {
+                    sourceText = enText;
+                    sourceLang = ENGLISH_KEY;
+                    targetField = editTextRu;
+                } else if (!ruText.isEmpty()) {
+                    sourceText = ruText;
+                    sourceLang = RUSSIAN_KEY;
+                    targetField = editTextEn;
+                } else {
+                    Toast.makeText(getContext(), "Enter a word first", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                ((MainActivity) getActivity()).getQuestionService()
+                        .getSuggestions(sourceText, sourceLang)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                dto -> {
+                                    if (isAdded() && dto.getSuggestions() != null && !dto.getSuggestions().isEmpty()) {
+                                        targetField.setText(String.join(", ", dto.getSuggestions()));
+                                    }
+                                },
+                                error -> Toast.makeText(getContext(), "LLM suggestion failed", Toast.LENGTH_SHORT).show()
+                        );
+            });
+
+            relativeLayout.addView(editTextEn);
             relativeLayout.addView(editTextRu);
+            relativeLayout.addView(suggestButton);
         }
 
         RelativeLayout.LayoutParams textViewParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
