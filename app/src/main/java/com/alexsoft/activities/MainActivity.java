@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String GUESSWORD_SERVER = "http://" + "192.168.0.201" + ":" + 24868 + "/api/";
     private static final String LOCALHOST = "http://" + "10.0.2.2" + ":" + 24868 + "/api/";
 
-    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(LOCALHOST)
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(JacksonConverterFactory.create())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
