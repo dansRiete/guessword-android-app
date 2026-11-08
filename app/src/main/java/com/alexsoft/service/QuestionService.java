@@ -1,6 +1,7 @@
 package com.alexsoft.service;
 
 import com.alexsoft.datamodel.Question;
+import com.alexsoft.datamodel.StatisticsDto;
 import com.alexsoft.datamodel.SuggestionDto;
 
 import java.util.List;
@@ -49,6 +50,9 @@ public interface QuestionService {
 
     @POST("answer/actualAnswer")
     Observable<Void> saveActualAnswer(@Query("questionId") Integer questionId, @Query("actualAnswer") String actualAnswer);
+
+    @GET("answer/statistics")
+    Observable<StatisticsDto> getTodayStatistics(@Query("tz") String tz);
 
     @GET("suggestion")
     Observable<SuggestionDto> getSuggestions(@Query("word") String word, @Query("language") String language);

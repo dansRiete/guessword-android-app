@@ -24,9 +24,11 @@ import com.alexsoft.datamodel.Question;
 import com.alexsoft.datamodel.Word;
 import com.kuzko.aleksey.alexsoft.R;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +40,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     private final List<Question> questions = new LinkedList<>();
     private final List<Question> answeredQuestions = new LinkedList<>();
+    private final Set<Integer> sessionQuestionIds = new HashSet<>();
     private int recyclerViewHeight = 0;
     private int totalAnswered = 0;
     private int rightAnswerPercentage = 0;
@@ -87,6 +90,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     public void addItem(Question question) {
         if (question != null) {
+            if (question.getId() != null) {
+                sessionQuestionIds.add(question.getId());
+            }
             questions.add(question);
             notifyItemInserted(questions.size() - 1);
         }
@@ -96,23 +102,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         if (id == null) {
             return false;
         }
-        return questions.stream().anyMatch(q -> Objects.equals(q.getId(), id));
+        return sessionQuestionIds.contains(id)
+                || questions.stream().anyMatch(q -> Objects.equals(q.getId(), id));
     }
 
     public boolean hasAnsweredQuestions() {
         return questions.stream().anyMatch(q -> q.getAnsweredCorrectly() != null);
     }
 
-    public int removeAnsweredQuestions() {
-        int removedCount = 0;
-        for (int i = questions.size() - 1; i >= 0; i--) {
-            if (questions.get(i).getAnsweredCorrectly() != null) {
-                questions.remove(i);
-                notifyItemRemoved(i);
-                removedCount++;
-            }
+    public void clearQuestions() {
+        int count = questions.size();
+        if (count > 0) {
+            questions.clear();
+            notifyItemRangeRemoved(0, count);
         }
-        return removedCount;
     }
 
     public int updateQuestion(Question target, Question updated) {

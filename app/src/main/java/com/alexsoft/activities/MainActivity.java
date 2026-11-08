@@ -34,11 +34,14 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.alexsoft.adapter.RecyclerAdapter;
 import com.alexsoft.datamodel.Question;
+import com.alexsoft.datamodel.StatisticsDto;
 import com.alexsoft.fragment.QuestionEditFragment;
 import com.alexsoft.service.QuestionService;
 import com.alexsoft.view.ContextMenuRecyclerView;
 import com.google.android.material.navigation.NavigationView;
 import com.kuzko.aleksey.alexsoft.R;
+
+import java.util.TimeZone;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -51,7 +54,7 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
     private static final String GUESSWORD_SERVER = "http://" + "192.168.0.201" + ":" + 24868 + "/api/";
     private static final String LOCALHOST = "http://" + "10.0.2.2" + ":" + 24868 + "/api/";
-    private static final int MAX_DUPLICATE_RETRIES = 5;
+    private static final int MAX_DUPLICATE_RETRIES = 25;
 
     private final Retrofit retrofit = new Retrofit.Builder().baseUrl(GUESSWORD_SERVER)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -62,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private final RecyclerAdapter recyclerAdapter = new RecyclerAdapter();
     private boolean isFetchingTiles = false;
     private Question lastAnsweredQuestion;
+    private StatisticsDto todayStatistics = new StatisticsDto();
     private TextView serviceText;
     private DrawerLayout mDrawer;
     private ItemTouchHelper itemTouchHelper;
@@ -111,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupSwipeSupport(mRecyclerView);
         setStatisticFooter();
+        refreshTodayStatistics();
         fillTiles();
     }
 
@@ -236,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
                             lastAnsweredQuestion = question;
                             recyclerAdapter.recordAnswer(current, question);
                             recyclerAdapter.updateQuestion(current, question);
-                            setStatisticFooter();
+                            refreshTodayStatistics();
                         },
                         error -> {
                             Toast.makeText(this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
@@ -246,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void replaceAnsweredTilesAction(View view) {
-        recyclerAdapter.removeAnsweredQuestions();
+        recyclerAdapter.clearQuestions();
         fillTiles();
     }
 
@@ -437,15 +442,30 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void refreshTodayStatistics() {
+        questionService.getTodayStatistics(TimeZone.getDefault().getID())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        stats -> {
+                            if (stats != null) {
+                                todayStatistics = stats;
+                                setStatisticFooter();
+                            }
+                        },
+                        Throwable::printStackTrace
+                );
+    }
+
     private void setStatisticFooter() {
         String stat = String.format(
                 "Answered: <b>%d</b>, <font color='%s'>Studied: %d</font>," +
                         " <font color='%s'>Right: %d%%</font>",
-                recyclerAdapter.getTotalAnswered(),
+                todayStatistics.getAnsweredToday(),
                 "#4CAF50",
-                recyclerAdapter.getStudiedQuestions(),
+                todayStatistics.getStudiedToday(),
                 "#3F51B5",
-                recyclerAdapter.getRightAnswerPercentage());
+                todayStatistics.getRightAnswerPercentage());
         serviceText.setText(Html.fromHtml(stat, Html.FROM_HTML_MODE_LEGACY), TextView.BufferType.SPANNABLE);
     }
 
