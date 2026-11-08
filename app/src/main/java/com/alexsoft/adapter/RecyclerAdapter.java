@@ -37,9 +37,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public static final int TILE_COUNT = 10;
 
     private final List<Question> questions = new LinkedList<>();
+    private final List<Question> answeredQuestions = new LinkedList<>();
     private int recyclerViewHeight = 0;
     private int totalAnswered = 0;
-    private int rightAnswers = 0;
     private int rightAnswerPercentage = 0;
     private int studiedQuestions = 0;
 
@@ -111,19 +111,44 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         return -1;
     }
 
-    public void recordAnswer(Question question) {
-        if (question != null && question.getAnsweredCorrectly() != null) {
-            totalAnswered++;
-            if (question.getAnsweredCorrectly()) {
-                rightAnswers++;
+    public void recordAnswer(Question target, Question updated) {
+        if (updated == null || updated.getAnsweredCorrectly() == null) {
+            return;
+        }
+        boolean replaced = false;
+        for (int i = answeredQuestions.size() - 1; i >= 0; i--) {
+            Question existing = answeredQuestions.get(i);
+            if (existing == target || (updated.getId() != null && Objects.equals(existing.getId(), updated.getId()))) {
+                answeredQuestions.set(i, updated);
+                replaced = true;
+                break;
+            }
+        }
+        if (!replaced) {
+            answeredQuestions.add(updated);
+        }
+        updateStats();
+    }
+
+    private void updateStats() {
+        int rights = 0;
+        int total = 0;
+        studiedQuestions = 0;
+        for (Question question : answeredQuestions) {
+            if (question.getAnsweredCorrectly() != null) {
+                if (question.getAnsweredCorrectly()) {
+                    rights++;
+                }
+                total++;
             }
             if (hasBeenStudied(question)) {
                 studiedQuestions++;
             } else if (alreadyStudiedAnsweredWrong(question)) {
                 studiedQuestions--;
             }
-            rightAnswerPercentage = totalAnswered == 0 ? 0 : rightAnswers * 100 / totalAnswered;
         }
+        totalAnswered = total;
+        rightAnswerPercentage = total == 0 ? 0 : rights * 100 / total;
     }
 
     public void setRecyclerViewHeight(int height) {
@@ -259,6 +284,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                         .map(Word::toQuestionString)
                         .collect(Collectors.joining(", "))
         );
+    }
+
+    public int getTotalAnswered() {
+        return totalAnswered;
     }
 
     public int getRightAnswerPercentage() {

@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private final QuestionService questionService = retrofit.create(QuestionService.class);
     private final RecyclerAdapter recyclerAdapter = new RecyclerAdapter();
     private boolean isFetchingTiles = false;
+    private Question lastAnsweredQuestion;
     private TextView serviceText;
     private DrawerLayout mDrawer;
     private ItemTouchHelper itemTouchHelper;
@@ -112,10 +113,17 @@ public class MainActivity extends AppCompatActivity {
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 int position = viewHolder.getAdapterPosition();
                 Question question = recyclerAdapter.getQuestion(position);
-                if (question == null || question.getAnsweredCorrectly() != null) {
+                if (question == null) {
                     return makeMovementFlags(0, 0);
                 }
-                return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+                if (question.getAnsweredCorrectly() == null) {
+                    return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+                }
+                // Allow swiping to the opposite side to revert Know / Don't know
+                int allowedDirection = question.getAnsweredCorrectly()
+                        ? ItemTouchHelper.RIGHT
+                        : ItemTouchHelper.LEFT;
+                return makeMovementFlags(0, allowedDirection);
             }
 
             @Override
@@ -171,17 +179,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleTileSwiped(int position, Question current, boolean answeredRight) {
-        Double previousStudyPoints = current.getStudyPoints();
-        Double previousStudyMultiplier = current.getStudyPointsMultiplier();
+        boolean isRevert = current.getAnsweredCorrectly() != null;
+        Double previousStudyPoints = isRevert && current.getPreviousStudyPoints() != null
+                ? current.getPreviousStudyPoints()
+                : current.getStudyPoints();
+        Double previousStudyMultiplier = isRevert && current.getPreviousStudyPointsMultiplier() != null
+                ? current.getPreviousStudyPointsMultiplier()
+                : current.getStudyPointsMultiplier();
 
         current.setPreviousStudyPoints(previousStudyPoints);
         current.setPreviousStudyPointsMultiplier(previousStudyMultiplier);
         current.setAnsweredCorrectly(answeredRight);
         recyclerAdapter.notifyItemChanged(position);
 
-        Observable<Question> answerCall = answeredRight
-                ? questionService.rightAnswer(current)
-                : questionService.wrongAnswer(current);
+        Observable<Question> answerCall;
+        if (isRevert) {
+            boolean isLastAnswered = lastAnsweredQuestion != null
+                    && (lastAnsweredQuestion == current
+                    || (current.getId() != null && current.getId().equals(lastAnsweredQuestion.getId())));
+            if (isLastAnswered) {
+                answerCall = answeredRight
+                        ? questionService.previousRight()
+                        : questionService.previousWrong();
+            } else {
+                current.setStudyPoints(previousStudyPoints);
+                current.setStudyPointsMultiplier(previousStudyMultiplier);
+                answerCall = answeredRight
+                        ? questionService.rightAnswer(current)
+                        : questionService.wrongAnswer(current);
+            }
+        } else {
+            lastAnsweredQuestion = current;
+            answerCall = answeredRight
+                    ? questionService.rightAnswer(current)
+                    : questionService.wrongAnswer(current);
+        }
 
         answerCall
                 .subscribeOn(Schedulers.io())
@@ -191,7 +223,8 @@ public class MainActivity extends AppCompatActivity {
                             question.setAnsweredCorrectly(answeredRight);
                             question.setPreviousStudyPoints(previousStudyPoints);
                             question.setPreviousStudyPointsMultiplier(previousStudyMultiplier);
-                            recyclerAdapter.recordAnswer(question);
+                            lastAnsweredQuestion = question;
+                            recyclerAdapter.recordAnswer(current, question);
                             recyclerAdapter.updateQuestion(current, question);
                             setStatisticFooter();
                         },
@@ -339,8 +372,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void setStatisticFooter() {
         String stat = String.format(
-                "<font color='%s'>Studied today: %d</font>," +
-                        " <font color='%s'>Right answers %d%%</font>",
+                "Answered: <b>%d</b>, <font color='%s'>Studied: %d</font>," +
+                        " <font color='%s'>Right: %d%%</font>",
+                recyclerAdapter.getTotalAnswered(),
                 "#4CAF50",
                 recyclerAdapter.getStudiedQuestions(),
                 "#3F51B5",
