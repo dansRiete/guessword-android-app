@@ -47,7 +47,15 @@ public interface QuestionService {
     @POST("answer/previousWrong")
     Observable<Question> previousWrong();
 
+    @POST("answer/actualAnswer")
+    Observable<Void> saveActualAnswer(@Query("questionId") Integer questionId, @Query("actualAnswer") String actualAnswer);
+
     @GET("suggestion")
     Observable<SuggestionDto> getSuggestions(@Query("word") String word, @Query("language") String language);
+
+    @GET("suggestion/check")
+    Observable<String> checkTranslation(@Query("en") String en,
+                                        @Query("ru") String ru,
+                                        @Query("comment") String comment);
 
 }

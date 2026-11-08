@@ -13,10 +13,13 @@ import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -71,8 +74,14 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            if (getSupportActionBar() != null) {
+                boolean hasBackStack = getSupportFragmentManager().getBackStackEntryCount() > 0;
+                getSupportActionBar().setDisplayHomeAsUpEnabled(hasBackStack);
+            }
+        });
 
         mDrawer = findViewById(R.id.drawer_layout);
         NavigationView nvDrawer = findViewById(R.id.nvView);
@@ -223,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
                             question.setAnsweredCorrectly(answeredRight);
                             question.setPreviousStudyPoints(previousStudyPoints);
                             question.setPreviousStudyPointsMultiplier(previousStudyMultiplier);
+                            question.setActualAnswer(current.getActualAnswer());
                             lastAnsweredQuestion = question;
                             recyclerAdapter.recordAnswer(current, question);
                             recyclerAdapter.updateQuestion(current, question);
@@ -240,7 +250,15 @@ public class MainActivity extends AppCompatActivity {
         fillTiles();
     }
 
-    private void fillTiles() {
+    public void newPhraseButtonAction(View view) {
+        FragmentTransaction fTrans = getSupportFragmentManager().beginTransaction();
+        QuestionEditFragment frag = QuestionEditFragment.newInstance(CREATE);
+        fTrans.add(R.id.frgmCont, frag);
+        fTrans.addToBackStack(null);
+        fTrans.commit();
+    }
+
+    public void fillTiles() {
         if (isFetchingTiles || recyclerAdapter.getItemCount() >= RecyclerAdapter.TILE_COUNT) {
             return;
         }
@@ -285,6 +303,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater menuInflater = this.getMenuInflater();
         menuInflater.inflate(R.menu.context_menu, menu);
+
+        ContextMenuRecyclerView.RecyclerContextMenuInfo info =
+                (ContextMenuRecyclerView.RecyclerContextMenuInfo) menuInfo;
+        Question question = info != null ? recyclerAdapter.getQuestion(info.position) : null;
+        MenuItem answerItem = menu.findItem(R.id.context_menu_answer);
+        if (answerItem != null) {
+            answerItem.setVisible(question != null && Boolean.FALSE.equals(question.getAnsweredCorrectly()));
+        }
     }
 
     @Override
@@ -301,11 +327,10 @@ public class MainActivity extends AppCompatActivity {
                     fTrans.commit();
                 }
                 break;
-            case "New":
-                QuestionEditFragment frag1 = QuestionEditFragment.newInstance(CREATE);
-                fTrans.add(R.id.frgmCont, frag1);
-                fTrans.addToBackStack(null);
-                fTrans.commit();
+            case "Answer":
+                if (question != null) {
+                    showActualAnswerDialog(question);
+                }
                 break;
             case "Delete":
                 if (question != null) {
@@ -330,6 +355,46 @@ public class MainActivity extends AppCompatActivity {
                 //nop
         }
         return false;
+    }
+
+    private void showActualAnswerDialog(Question question) {
+        EditText input = new EditText(this);
+        input.setHint("Your answer");
+        if (question.getActualAnswer() != null) {
+            input.setText(question.getActualAnswer());
+            input.setSelection(question.getActualAnswer().length());
+        }
+
+        int marginPx = Math.round(TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 16f, getResources().getDisplayMetrics()));
+        FrameLayout container = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = marginPx;
+        params.rightMargin = marginPx;
+        input.setLayoutParams(params);
+        container.addView(input);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Record Actual Answer")
+                .setView(container)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String typedAnswer = input.getText().toString().trim();
+                    questionService.saveActualAnswer(question.getId(), typedAnswer)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    unused -> {
+                                        question.setActualAnswer(typedAnswer);
+                                        Toast.makeText(this, "Answer saved", Toast.LENGTH_SHORT).show();
+                                    },
+                                    error -> Toast.makeText(this,
+                                            "Failed to save answer: " + error.getLocalizedMessage(),
+                                            Toast.LENGTH_LONG).show()
+                            );
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     public void selectDrawerItem(MenuItem menuItem) {
@@ -364,8 +429,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            mDrawer.openDrawer(GravityCompat.START);
-            return true;
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStack();
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }

@@ -55,10 +55,21 @@
                     tools:text="Right answers 78%" />
 
                 <Button
+                    android:id="@+id/newButton"
+                    android:onClick="newPhraseButtonAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="60dp"
+                    android:minHeight="36dp"
+                    android:paddingVertical="0dp"
+                    android:text="New" />
+
+                <Button
                     android:id="@+id/nextButton"
                     android:onClick="replaceAnsweredTilesAction"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="60dp"
                     android:minHeight="36dp"
                     android:paddingVertical="0dp"
                     android:text="@string/next_button" />

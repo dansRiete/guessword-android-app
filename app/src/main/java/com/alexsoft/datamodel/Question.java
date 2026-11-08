@@ -22,6 +22,7 @@ public class Question implements Serializable {
     @JsonIgnore private Double previousStudyPoints;
     @JsonIgnore private Double previousStudyPointsMultiplier;
     @JsonIgnore private Boolean answeredCorrectly;
+    @JsonIgnore private String actualAnswer;
     @JsonSerialize(using = ZonedDateTimeSerializer.class)
     @JsonDeserialize(using = CustomZonedDateTimeDeserializer.class)
     private ZonedDateTime created;
@@ -29,6 +30,7 @@ public class Question implements Serializable {
     @JsonDeserialize(using = CustomZonedDateTimeDeserializer.class)
     private ZonedDateTime lastAccessed;
     private String tag;
+    private Boolean confirmed;
     private List<Word> words = new ArrayList<>();
 
     @Override
@@ -60,6 +62,10 @@ public class Question implements Serializable {
         return answeredCorrectly;
     }
 
+    public String getActualAnswer() {
+        return actualAnswer;
+    }
+
     public ZonedDateTime getCreated() {
         return created;
     }
@@ -70,6 +76,10 @@ public class Question implements Serializable {
 
     public String getTag() {
         return tag;
+    }
+
+    public Boolean getConfirmed() {
+        return confirmed;
     }
 
     public List<Word> getWords() {
@@ -100,6 +110,10 @@ public class Question implements Serializable {
         this.answeredCorrectly = answeredCorrectly;
     }
 
+    public void setActualAnswer(String actualAnswer) {
+        this.actualAnswer = actualAnswer;
+    }
+
     public void setCreated(ZonedDateTime created) {
         this.created = created;
     }
@@ -110,6 +124,10 @@ public class Question implements Serializable {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public void setConfirmed(Boolean confirmed) {
+        this.confirmed = confirmed;
     }
 
     public void setWords(List<Word> words) {

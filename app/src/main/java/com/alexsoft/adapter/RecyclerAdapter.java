@@ -60,12 +60,28 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         }
     }
 
+    public void removeQuestion(Question target) {
+        if (target == null) {
+            return;
+        }
+        for (int i = 0; i < questions.size(); i++) {
+            Question current = questions.get(i);
+            if (current == target || (target.getId() != null && Objects.equals(current.getId(), target.getId()))) {
+                questions.remove(i);
+                notifyItemRemoved(i);
+                return;
+            }
+        }
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewRecyclerItem;
+        TextView confirmedCheckmark;
 
         ViewHolder(View view) {
             super(view);
             textViewRecyclerItem = view.findViewById(R.id.textViewRecyclerItem);
+            confirmedCheckmark = view.findViewById(R.id.confirmedCheckmark);
         }
     }
 
@@ -238,6 +254,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         );
         holder.textViewRecyclerItem.setTextColor(Color.parseColor("#37474F"));
         holder.textViewRecyclerItem.setTypeface(null, question.getAnsweredCorrectly() != null ? Typeface.BOLD : Typeface.NORMAL);
+        if (holder.confirmedCheckmark != null) {
+            holder.confirmedCheckmark.setVisibility(
+                    Boolean.TRUE.equals(question.getConfirmed()) ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void applyTileBackground(View itemView, Boolean answeredCorrectly) {
