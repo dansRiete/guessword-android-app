@@ -38,60 +38,29 @@
                 android:layout_above="@+id/serviceInfo"/>
 
             <LinearLayout
-                android:gravity="end"
+                android:gravity="center_vertical"
+                android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="44dp"
+                android:paddingHorizontal="6dp"
                 android:id="@+id/serviceInfo"
-                android:layout_above="@+id/buttonGroup2"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/serviceInfoText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:textSize="14sp"
                     tools:text="Right answers 78%" />
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_alignParentBottom="true"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/buttonGroup2">
-
                 <Button
-                    android:onClick="iDontKnowButtonAction"
-                    android:longClickable="true"
-                    android:id="@+id/leftButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.26"
-                    android:text="@string/wrong_answer_button" />
-
-                <Button
-                    android:onClick="iKnowButtonAction"
-                    android:longClickable="true"
-                    android:id="@+id/rigthButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.26"
-                    android:text="@string/right_answer_button" />
-
-                <Button
-                    android:onClick="previousButton"
-                    android:id="@+id/previousButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.19"
-                    android:text="@string/previous_button" />
-
-                <Button
-                    android:onClick="nextButton"
                     android:id="@+id/nextButton"
-                    android:layout_width="0dp"
+                    android:onClick="replaceAnsweredTilesAction"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.19"
+                    android:minHeight="36dp"
+                    android:paddingVertical="0dp"
                     android:text="@string/next_button" />
 
             </LinearLayout>

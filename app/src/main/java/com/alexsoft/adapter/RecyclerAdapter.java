@@ -1,24 +1,5 @@
 package com.alexsoft.adapter;
 
-
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.text.Html;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.alexsoft.datamodel.Question;
-import com.alexsoft.datamodel.Word;
-import com.kuzko.aleksey.alexsoft.R;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static com.alexsoft.GuesswordApplication.getAppContext;
 import static com.alexsoft.datamodel.Question.ENGLISH_KEY;
 import static com.alexsoft.datamodel.Question.RUSSIAN_KEY;
@@ -26,34 +7,60 @@ import static com.alexsoft.utils.QuestionUtils.alreadyStudiedAnsweredWrong;
 import static com.alexsoft.utils.QuestionUtils.hasBeenStudied;
 import static com.alexsoft.utils.QuestionUtils.isAnswered;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.text.Html;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.alexsoft.datamodel.Question;
+import com.alexsoft.datamodel.Word;
+import com.kuzko.aleksey.alexsoft.R;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Created by Aleks on 20.03.2017.
  */
-//@Getter
-//@Setter
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
-    private List<Question> questions = new LinkedList<>();
-    private boolean previousSelected;
+    public static final int TILE_COUNT = 10;
+
+    private final List<Question> questions = new LinkedList<>();
+    private int recyclerViewHeight = 0;
+    private int totalAnswered = 0;
+    private int rightAnswers = 0;
     private int rightAnswerPercentage = 0;
     private int studiedQuestions = 0;
 
     public RecyclerAdapter() {
     }
 
-    public Question getQuestion(int id) {
-        return questions.get(id);
-    }
-
-    public void remove(int id) {
-        if (id >= 0 && id < questions.size()) {
-            questions.remove(id);
+    public Question getQuestion(int position) {
+        if (position >= 0 && position < questions.size()) {
+            return questions.get(position);
         }
-        updateStats();
+        return null;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public void remove(int position) {
+        if (position >= 0 && position < questions.size()) {
+            questions.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewRecyclerItem;
 
         ViewHolder(View view) {
@@ -64,84 +71,123 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     public void addItem(Question question) {
         if (question != null) {
-            questions.add(0, question);
+            questions.add(question);
+            notifyItemInserted(questions.size() - 1);
         }
-        updateStats();
     }
 
-    public Question getCurrent() {
-            return questions.size() > 0 ? questions.get(0) : null;
-    }
-
-    public Question getPrevious() {
-        return questions.size() > 1 ? questions.get(1) : null;
-    }
-
-    public Question setPrevious(Question question) {
-        Question set = questions.set(1, question);
-        updateStats();
-        return set;
-    }
-
-    public Question setCurrent(Question question) {
-        Question question1;
-        if (previousSelected) {
-            question1 = questions.set(1, question);
-        } else {
-            question1 =  questions.set(0, question);
+    public boolean containsQuestionId(Integer id) {
+        if (id == null) {
+            return false;
         }
-        updateStats();
-        return question1;
+        return questions.stream().anyMatch(q -> Objects.equals(q.getId(), id));
     }
 
-    private void updateStats() {
-        int rights = 0;
-        int total = 0;
-        studiedQuestions = 0;
-        for(Question question : questions) {
-            if(question.getAnsweredCorrectly() != null) {
-                if(question.getAnsweredCorrectly()) {
-                    rights++;
-                }
-                total++;
+    public boolean hasAnsweredQuestions() {
+        return questions.stream().anyMatch(q -> q.getAnsweredCorrectly() != null);
+    }
+
+    public int removeAnsweredQuestions() {
+        int removedCount = 0;
+        for (int i = questions.size() - 1; i >= 0; i--) {
+            if (questions.get(i).getAnsweredCorrectly() != null) {
+                questions.remove(i);
+                notifyItemRemoved(i);
+                removedCount++;
+            }
+        }
+        return removedCount;
+    }
+
+    public int updateQuestion(Question target, Question updated) {
+        for (int i = 0; i < questions.size(); i++) {
+            Question current = questions.get(i);
+            if (current == target || (updated.getId() != null && Objects.equals(current.getId(), updated.getId()))) {
+                questions.set(i, updated);
+                notifyItemChanged(i);
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void recordAnswer(Question question) {
+        if (question != null && question.getAnsweredCorrectly() != null) {
+            totalAnswered++;
+            if (question.getAnsweredCorrectly()) {
+                rightAnswers++;
             }
             if (hasBeenStudied(question)) {
                 studiedQuestions++;
             } else if (alreadyStudiedAnsweredWrong(question)) {
                 studiedQuestions--;
             }
+            rightAnswerPercentage = totalAnswered == 0 ? 0 : rightAnswers * 100 / totalAnswered;
         }
-        rightAnswerPercentage = total == 0 ? 0 : rights * 100 / total;
     }
 
+    public void setRecyclerViewHeight(int height) {
+        if (height > 0 && this.recyclerViewHeight != height) {
+            this.recyclerViewHeight = height;
+            notifyDataSetChanged();
+        }
+    }
+
+    @NonNull
     @Override
-    public RecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (parent.getHeight() > 0 && recyclerViewHeight == 0) {
+            recyclerViewHeight = parent.getHeight();
+        }
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.itemView.setLongClickable(true);
+
+        int availableHeight = recyclerViewHeight > 0 ? recyclerViewHeight :
+                (holder.itemView.getParent() instanceof View ? ((View) holder.itemView.getParent()).getHeight() : 0);
+        if (availableHeight > 0) {
+            ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            int verticalMargin = 0;
+            if (lp instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                verticalMargin = mlp.topMargin + mlp.bottomMargin;
+            }
+            int targetHeight = Math.max(1, (availableHeight / TILE_COUNT) - verticalMargin);
+            if (lp.height != targetHeight) {
+                lp.height = targetHeight;
+                holder.itemView.setLayoutParams(lp);
+            }
+        }
+
         Question question = questions.get(position);
+        applyTileBackground(holder.itemView, question.getAnsweredCorrectly());
+
         String foreignWords = questionToString(question, ENGLISH_KEY);
+        double studyPoints = question.getStudyPoints() != null ? question.getStudyPoints() : 0.0;
+        double studyMultiplier = question.getStudyPointsMultiplier() != null ? question.getStudyPointsMultiplier() : 0.0;
+        double prevStudyPoints = question.getPreviousStudyPoints() != null ? question.getPreviousStudyPoints() : studyPoints;
+        double prevStudyMultiplier = question.getPreviousStudyPointsMultiplier() != null ? question.getPreviousStudyPointsMultiplier() : studyMultiplier;
 
         if (question.getAnsweredCorrectly() != null) {
             boolean makeBold;
             if (question.getAnsweredCorrectly()) {
-                makeBold = question.getPreviousStudyPoints() > 3 && question.getStudyPoints() <= 3;
+                makeBold = prevStudyPoints > 3 && studyPoints <= 3;
                 foreignWords = String.format("<font color='%s'>%s</font>",
                         getAppContext().getString(R.string.rightAnsweredQuestionColor),
                         foreignWords
                 );
             } else {
-                makeBold = question.getPreviousStudyPoints() <= 3 && question.getStudyPoints() > 3;
+                makeBold = prevStudyPoints <= 3 && studyPoints > 3;
                 foreignWords = String.format("<font color='%s'>%s</font>",
                         getAppContext().getString(R.string.wrongAnsweredQuestionColor),
                         foreignWords
                 );
             }
-            if(makeBold) {
+            if (makeBold) {
                 foreignWords = "<b>" + foreignWords + "</b>";
             }
         } else {
@@ -153,7 +199,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
         String nativeWords = questionToString(question, RUSSIAN_KEY);
 
-        if (question.getStudyPoints() <= 3 && !isAnswered(question)) {
+        if (studyPoints <= 3 && !isAnswered(question)) {
             nativeWords = String.format("<font color='%s'>%s</font>",
                     getAppContext().getString(R.string.rightAnsweredQuestionColor),
                     nativeWords
@@ -161,26 +207,33 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         }
 
         String words = question.getAnsweredCorrectly() == null ? nativeWords : nativeWords + " - " + foreignWords;
-        String formattedWords = String.format("%d. %s", questions.size() - position, words);
-        String formattedProbabilityValues;
-        if (question.getAnsweredCorrectly() == null) {
-            formattedProbabilityValues = String.format("[ %.1f/%.2f ]", question.getStudyPoints(),
-                    question.getStudyPointsMultiplier());
+        holder.textViewRecyclerItem.setText(
+                Html.fromHtml(words, Html.FROM_HTML_MODE_LEGACY),
+                TextView.BufferType.SPANNABLE
+        );
+        holder.textViewRecyclerItem.setTextColor(Color.parseColor("#37474F"));
+        holder.textViewRecyclerItem.setTypeface(null, question.getAnsweredCorrectly() != null ? Typeface.BOLD : Typeface.NORMAL);
+    }
+
+    private void applyTileBackground(View itemView, Boolean answeredCorrectly) {
+        GradientDrawable drawable = new GradientDrawable();
+        float cornerRadiusPx = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 8f, itemView.getResources().getDisplayMetrics());
+        int strokeWidthPx = Math.max(1, Math.round(TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1.5f, itemView.getResources().getDisplayMetrics())));
+        drawable.setCornerRadius(cornerRadiusPx);
+
+        if (answeredCorrectly == null) {
+            drawable.setColor(Color.parseColor("#FAFAFA"));
+            drawable.setStroke(strokeWidthPx, Color.parseColor("#CFD8DC"));
+        } else if (answeredCorrectly) {
+            drawable.setColor(Color.parseColor("#E8F5E9"));
+            drawable.setStroke(strokeWidthPx, Color.parseColor("#66BB6A"));
         } else {
-            formattedProbabilityValues = String.format("[ %.1f>%.1f / %.2f>%.2f ]",
-                    question.getPreviousStudyPoints(),
-                    question.getStudyPoints(),
-                    question.getPreviousStudyPointsMultiplier(),
-                    question.getStudyPointsMultiplier()
-            );
+            drawable.setColor(Color.parseColor("#FFEBEE"));
+            drawable.setStroke(strokeWidthPx, Color.parseColor("#EF5350"));
         }
-        holder.textViewRecyclerItem.setText(Html.fromHtml(formattedWords + " " + formattedProbabilityValues), TextView.BufferType.SPANNABLE);
-        holder.textViewRecyclerItem.setTextColor(Color.GRAY);
-        if ((previousSelected && position == 1) || (!previousSelected && position == 0)) {
-            holder.textViewRecyclerItem.setTypeface(null, Typeface.BOLD);
-        } else {
-            holder.textViewRecyclerItem.setTypeface(null, Typeface.NORMAL);
-        }
+        itemView.setBackground(drawable);
     }
 
     @Override
@@ -189,20 +242,23 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
 
     public static String questionToString(Question question, String language) {
-        return question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY)).map(Word::toQuestionString).collect(Collectors.joining(", "));
+        return question.getWords().stream()
+                .filter(word -> word.getLanguage().equals(ENGLISH_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY))
+                .map(Word::toQuestionString)
+                .collect(Collectors.joining(", "));
     }
 
     public static String answeredQuestionToString(Question question, String language) {
         return String.format("%s - %s",
-                question.getWords().stream().filter(word -> word.getLanguage().equals(ENGLISH_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY)).map(Word::toQuestionString).collect(Collectors.joining(", ")),
-                question.getWords().stream().filter(word -> word.getLanguage().equals(RUSSIAN_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY)).map(Word::toQuestionString).collect(Collectors.joining(", "))
+                question.getWords().stream()
+                        .filter(word -> word.getLanguage().equals(ENGLISH_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY))
+                        .map(Word::toQuestionString)
+                        .collect(Collectors.joining(", ")),
+                question.getWords().stream()
+                        .filter(word -> word.getLanguage().equals(RUSSIAN_KEY.equals(language) ? ENGLISH_KEY : RUSSIAN_KEY))
+                        .map(Word::toQuestionString)
+                        .collect(Collectors.joining(", "))
         );
-    }
-
-    public void setPreviousSelected(boolean previousSelected) {
-        if (questions.size() > 1) {
-            this.previousSelected = previousSelected;
-        }
     }
 
     public int getRightAnswerPercentage() {
